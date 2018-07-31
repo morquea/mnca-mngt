@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" href="/assets/semantic/dist/semantic.min.css" type="text/css" />
+    <link href="/assets/jsoneditor/dist/jsoneditor.min.css" rel="stylesheet" type="text/css" />
+    <script src="/assets/jquery/jquery-3.3.1.min.js"></script>
+    <script src="/assets/semantic/dist/semantic.min.js"></script>
+    <script src="/assets/jsoneditor/dist/jsoneditor.min.js"></script>
+    <script src="/assets/ajv/dist/ajv.min.js"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ajv/6.5.1/ajv.min.js"></script> -->
+    <script src="/assets/js/custom.js"></script>
+    <style>
+    .main.container {
+        margin-top: 3em;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="ui eight item pointing menu">
+        <a id="id_accueil" href="/" class="header item navItem">Accueil</a>
+        <a id="id_services" href="/iot/services" class="header item navItem">Services IOT</a>
+        <a id="id_devices" href="/iot/devices" class="header item navItem">Devices IOT</a>
+        <div class="header item"></div>
+        <div class="header item"></div>
+        <div class="header item"></div>
+        <% if (locals.userinfo) { %>
+        <div class="header item"><i><%= userinfo.username %></i></div>
+        <a href="/auth/logout" class="header item navItem">
+            <button class="ui left floated small labeled primary icon button"><i class="user icon"></i>Logout</button>
+        </a>
+        <% } else { %>
+        <div class="header item"></div>
+        <a href="/auth/login" class="header right item navItem">
+            <button class="ui left floated small labeled primary icon button"><i class="user icon"></i>Login</button>
+        </a>
+        <% } %>
+    </div>
+    <div class="ui main container">
+        <% if (locals.flash && locals.flash.error) { %>
+        <div class="ui negative message">
+            <%= flash.error %>
+        </div>
+        <% } %>
+
+        <% if (locals.flash && locals.flash.success) { %>
+        <div class="ui positive message">
+            <%= flash.success %>
+        </div>
+        <% } %>

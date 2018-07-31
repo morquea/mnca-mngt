@@ -1,0 +1,29 @@
+<% include header %>
+
+	<div class="ui comments">
+
+			<div class="comment">
+
+				<a class="avatar" href="/message/<%= message.rowid %>">
+
+					<img src="https://png.icons8.com/metro/50/000000/jpg.png">
+
+				</a>
+
+				<div class="content">
+
+					<div class="metadata">
+
+						<div class="date"><%= message.created_at %></div>	
+
+					</div>				
+
+					<div class"text"><%= message.content %></div>
+
+				</div>
+
+			</div>
+
+	</div>	
+
+<% include footer %>

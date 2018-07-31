@@ -1,0 +1,18 @@
+<% include header %>
+	
+    <div class="ui comments">
+        <h3 class="ui centered header">Bienvenue sur le Système d'administration des Services et Devices IOT de la <br/><br/>MNCA<br/><br/><br/>
+
+    <% if (locals.userinfo) { %>
+
+    	Vous vous êtes actuellement authentifié à l'IDM avec l'utilisateur  '<i><%= userinfo.displayName %></i>'.
+
+    <% } else { %>
+
+    	Veuillez vous authentifier à l'IDM via le bouton de Login.
+
+    <% } %>
+		</h3>
+    </div>
+
+<% include footer %>

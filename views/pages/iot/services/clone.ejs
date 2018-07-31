@@ -1,0 +1,106 @@
+<% include ../../header %>
+    <div class="ui negative message" style="display: none;">
+    </div>
+     <div class="ui comments">
+        <h3 class="ui dividing header">Duplication de Service IOT</h3>
+    </div>
+    
+    <div id="divCreService" class="contents">
+        <div class="ui comments">
+            <h4 class="ui header">Définition des éléments clés</h4>
+        </div>
+        <div class="ui four column grid">
+            <div class="row">
+                <div class="column">
+                    <div class="ui input">
+                        <input id="inpService" class="cloneservice" type="text" name="fw_service" readonly="" value="<%= services[0] %>">                      
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="ui input">
+                        <input id="inpSubService" class="cloneservice" type="text" name="fw_servicepath" readonly="" value="<%= subservices[0] %>">              
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="ui input">
+                        <input class="createservice" type="text" name="apikey" list="divApikeys" placeholder="Enter Apikey">
+                        <datalist id="divApikeys">
+                            <% apikeys.forEach(function (apikey) { %>
+                                <option class="item" value="<%= apikey %>"><%= apikey %></option>
+                            <% }) %>
+                        </datalist>              
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="ui input">
+                        <input class="createservice" type="text" name="resource" list="divResources" placeholder="Enter Resource">
+                        <datalist id="divResources">
+                            <% resources.forEach(function (resource) { %>
+                                <option class="item" value="<%= resource %>"><%= resource %></option>
+                            <% }) %>
+                        </datalist>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="column">
+                    <button id="btnDef" class="ui left floated small primary labeled icon button disabled">
+                        <i class="forward icon"></i> Appliquer la Définition
+                    </button>
+                </div>
+                <div class="column">
+                    <button id="btnUnDef" class="ui left floated small primary labeled icon button">
+                        <i class="backward icon"></i> Réinitialiser la Définition
+                    </button>
+                </div>
+                <div class="column">
+                    <button id="btnUndo2" class="ui left floated small primary labeled  icon button">
+                        <i class="undo icon"></i> Annuler
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <br/>
+    <div id="divCreEditor" class="contents" style="display: none;">
+
+        <div class="ui comments">
+            <h4 class="ui header">Définition des autres éléments</h4>
+        </div>
+
+        <div id="jsoneditor" style="width: 520px; height: 400px;"></div>
+        <div class="ui two column grid" style="width: 520px; margin-top: 5px;">  
+            <div class="left floated column">
+                <div class="fields">  
+                    <button id="btnEdit" class="ui left floated small primary labeled icon button disabled">
+                        <i class="edit icon"></i> Editer
+                    </button>
+
+                    <button id="btnSave" class="ui left floated small primary labeled  icon button">
+                        <i class="shield alternate icon"></i> Valider
+                    </button>
+                </div>
+            </div>
+            <div class="right floated column">
+                <form class="ui form" action="/api/iot/services/create" method="post">
+                    <div class="fields">  
+                        <button id="btnUndo" class="ui left floated small primary labeled  icon button">
+                            <i class="undo icon"></i> Annuler
+                        </button>
+                        <button id="btnSend" class="ui left floated small primary labeled  icon button disabled">
+                            <i class="save icon"></i> Enregistrer
+                        </button>
+                    </div>
+                    <input id="inpServiceKeys" type="hidden" name="json_servicekeys" value='<%= json_servicekeys %>'>
+                    <input type="hidden" name="json" id="json" value='<%= json %>'>
+                    <input type="hidden" name="jsonschema" id="jsonschema" value='<%= jsonschema %>'>
+                    <input type="hidden" name="doit" id="doit" value="doit">
+                    <input type="hidden" name="readonly" id="readonly" value='<%= readonly %>'>
+                    <input type="hidden" name="readwrite" id="readwrite" value='<%= readwrite %>'>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<% include ../../footer %>

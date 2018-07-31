@@ -1,0 +1,12 @@
+{
+
+    "esversion": 6,
+    "asi": true,
+    "varstmt": true,
+    "indent": 1,
+    "undef": true,
+    "nocomma": true,
+    "node": true,
+    "browser": true,
+    "predef": ["$", "__stack", "__function", "__line"]
+}
