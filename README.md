@@ -1,0 +1,1 @@
+mnca-mngt
