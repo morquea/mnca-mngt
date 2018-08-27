@@ -32,6 +32,7 @@ let trace = function(dbg, msg) {
     if (dbg) {
 
         let trc = debug(dbg)
+        trc.enabled = true
 
         let orig = Error.prepareStackTrace;
         Error.prepareStackTrace = function(_, stack) {

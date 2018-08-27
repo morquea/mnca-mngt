@@ -15,8 +15,13 @@ let attributs = {
         'key': '_id'
     },
     'iot/devices': {
-        'readonly': ['device_id', 'service', 'service_path'],
-        'list': [{ name: 'service', label: 'Service' }, { name: 'service_path', label: 'Service Path' }, { name: 'device_id', label: 'Device ID' }],
+        'readonly': {
+            'update': ['device_id', 'service', 'service_path', 'entity_name', 'entity_type']
+        },
+        'readwrite': {
+            'update': ['attributes', 'lazy', 'commands', 'static_attributes']
+        },
+        'list': [{ name: 'service', label: 'Service' }, { name: 'service_path', label: 'Service Path' }, { name: 'device_id', label: 'Device ID' }, { name: 'entity_name', label: 'Entity name' }],
         'key': 'device_id'
     }
 

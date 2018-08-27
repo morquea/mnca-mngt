@@ -1,4 +1,73 @@
 let schemas = {
+    "devices": {
+        "type": "object",
+        "properties": {
+            "device_id": {
+                "type": "string",
+                "pattern": "^[\x20-\x7F]+$"
+            },
+            "service_path": {
+                "type": "string",
+                "pattern": "^\/[\x20-\x7F]+$"
+            },
+            "service": {
+                "type": "string",
+                "pattern": "^[\x20-\x7F]+$"
+            },
+            "entity_type": {
+                "type": "string",
+                "pattern": "^thing$"
+            },
+            "entity_name": {
+                "type": "string",
+                "pattern": "^[\x20-\x7F]+$"
+            },
+            "attributes": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "object_id": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "enum": ["string", "float", "integer", "geo:point", "geo:line", "geo:box", "geo:json"]
+                        }
+                    },
+                    "required": ["object_id", "name", "type"]
+                }
+            },
+            "lazy": {
+                "type": "array"
+            },
+            "commands": {
+                "type": "array"
+            },
+            "static_attributes": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "enum": ["string", "float", "integer", "geo:point", "geo:line", "geo:box", "geo:json"]
+                        },
+                        "value": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["value", "name", "type"],
+                }
+            }
+        },
+        "required": ["device_id", "service", "service_path", "entity_type", "entity_name"],
+        "additionalProperties": false
+    },
     "services": {
         "type": "object",
         "properties": {
@@ -43,7 +112,7 @@ let schemas = {
                             "type": "string"
                         },
                         "type": {
-                            "enum": ["string", "float", "geo:point", "geo:line", "geo:box", "geo:json"]
+                            "enum": ["string", "float", "integer", "geo:point", "geo:line", "geo:box", "geo:json"]
                         }
                     },
                     "required": ["object_id", "name", "type"]
@@ -71,7 +140,7 @@ let schemas = {
                             "type": "string"
                         },
                         "type": {
-                            "enum": ["string", "float", "geo:point", "geo:line", "geo:box", "geo:json"]
+                            "enum": ["string", "float", "integer", "geo:point", "geo:line", "geo:box", "geo:json"]
                         },
                         "value": {
                             "type": "string"

@@ -1,8 +1,8 @@
 <% include ../header %>
-<form class="ui form" action="/api/iot/services" method="post">
+<form class="ui form" action="/api/iot/devices" method="post">
     <input type="hidden" id="page" name="page" value="1">
     <div class="ui comments">
-        <h4 class="ui header">Selection des Services IOT</h3>
+        <h4 class="ui header">Selection des Devices IOT</h3>
     </div>
     <div class="contents">
         <div class="ui four column grid">
@@ -13,7 +13,7 @@
                         <div class="default text">Service</div>
                         <i class="dropdown icon" data-content="FIWARE Service"></i>
                         <div class="menu">
-                            <div class="item" data-value="*">Any FIWARE Service</div>
+                            <div class="item" data-value="">Choose FIWARE Service</div>
                             <% fw_services.forEach(function (fw_srv) { %>
                                 <div class="item" data-value="<%= fw_srv %>"><%= fw_srv %></div>
                             <% }) %>
@@ -23,10 +23,10 @@
                 <div class="column">
                     <div class="ui selection dropdown fw_servicepath">
                         <input id="inpSubService" type="hidden" name="fw_servicepath" value="<%= fw_servicepath %>">
-                        <div class="default text">ServicePath</div>
+                        <div class="text">Choose FIWARE ServicePath</div>
                         <i class="dropdown icon"></i>
                         <div class="menu">
-                            <div class="item" data-value="/*">Any FIWARE ServicePath</div>
+                            <div class="item" data-value="">Choose FIWARE ServicePath</div>
                             <% fw_servicepaths.forEach(function (fw_srp) { %>
                                 <div class="item" data-value="<%= fw_srp %>"><%= fw_srp %></div>
                             <% }) %>
@@ -34,12 +34,12 @@
                     </div>
                 </div>
                 <div class="column">
-                    <button type="submit" name="action" value='{"todo": "services"}' class="ui left floated small primary labeled submit icon button">
+                    <button type="submit" name="action" value='{"todo": "devices"}' class="ui left floated small primary labeled submit icon button">
                         <i class="filter icon"></i> Appliquer la Sélection
                     </button>
                 </div>
                 <div class="column">
-                    <button id="btnNoSel" type="submit" name="action" value='{"todo": "services"}' class="ui left floated small primary labeled submit icon button">
+                    <button id="btnNoSel2" type="submit" name="action" value='{"todo": "devices"}' class="ui left floated small primary labeled submit icon button">
                         <i class="list icon"></i> Annuler la Sélection
                     </button>
                 </div>
@@ -47,8 +47,9 @@
         </div>
         <input id="fwServiceKeys" type="hidden" name="fw_servicekeys" disabled value="<%= fw_servicekeys %>">
     </div>
+    <% if (pager) { %>
     <div class="ui comments iotlist">
-        <h4 class="ui header">Liste des Services IOT <% if (pager.nb_pages > 1) { %><i><%= '(page ' + pager.current_page + ' of ' + pager.nb_pages + ')' %></i><% } %></h4>
+        <h4 class="ui header">Liste des Devices IOT <% if (pager.nb_pages > 1) { %><i><%= '(page ' + pager.current_page + ' of ' + pager.nb_pages + ')' %></i><% } %></h4>
     </div>
     <div class="contents iotlist">
             
@@ -60,9 +61,6 @@
                         <th><%= list[2].label %></th>
                         <th><%= list[3].label %></th>
                         <th colspan="3">
-                            <button type="submit" name="action" value='{"todo": "create"}' class="ui left floated small primary labeled submit icon button">
-                                <i class="folder open icon"></i> Créer 
-                            </button>
                             <div class="ui right floated mini pagination menu">
                                 <% if (pager.current_page == 1) { %> 
                                 <a class="item active" data-value="1">1</a>
@@ -103,32 +101,27 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <% services.forEach(function(service)  { %>
+                    <% devices.forEach(function(device)  { %>
                         <tr>
                             <td>
-                                <%= service[list[0].name] %>
+                                <%= device[list[0].name] %>
                             </td>
                             <td>
-                                <%= service[list[1].name] %>
+                                <%= device[list[1].name] %>
                             </td>
                             <td>
-                                <%= service[list[2].name] %>
+                                <%= device[list[2].name] %>
                             </td>
                             <td>
-                                <%= service[list[3].name] %>
+                                <%= device[list[3].name] %>
                             </td>
                             <td>
-                                <button type="submit" name="action" value='{"todo": "update", "_id": "<%= service._id %>"}' class="ui left floated small primary labeled submit icon button">
+                                <button type="submit" name="action" value='{"todo": "update", "device_id": "<%= device.device_id %>"}' class="ui left floated small primary labeled submit icon button">
                                     <i class="edit icon"></i> Modifier
                                 </button>
                             </td>
                             <td>
-                                <button type="submit" name="action" value='{"todo": "clone", "_id": "<%= service._id %>"}' class="ui left floated small primary labeled submit icon button">
-                                    <i class="clone icon"></i> Dupliquer
-                                </button>
-                            </td>
-                            <td>
-                                <button type="submit" name="action" value='{"todo": "delete", "_id": "<%= service._id %>"}' class="ui left floated small primary labeled submit icon button">
+                                <button type="submit" name="action" value='{"todo": "delete", "device_id": "<%= device.device_id %>"}' class="ui left floated small primary labeled submit icon button">
                                     <i class="trash icon"></i> Supprimer
                                 </button>
                             </td>
@@ -137,5 +130,6 @@
                 </tbody>
             </table>
     </div>
+    <% } %>
 </form>
 <% include ../footer %>

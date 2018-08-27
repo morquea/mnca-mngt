@@ -33,6 +33,9 @@ passport.use(
 
             trace(debug, 'login passwport done accesstoken %s refreshtoken %s profile %o ', accessToken, refreshToken, profile)
 
+            done(null, { accessToken: accessToken, refreshToken: refreshToken })
+
+            /*
             rest({
 
                 uri: 'http://idm.mnca.com:3100/user',
@@ -56,7 +59,8 @@ passport.use(
                 trace(debug, 'login passwport done profile %o ', resp)
 
                 done(null, resp)
-            })
+            }) */
+
 
         }
     )

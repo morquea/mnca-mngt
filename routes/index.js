@@ -4,11 +4,11 @@ let trace = require('../config/trace')
 
 let router = express.Router()
 
-const debug = 'mnca:index'
+let debug = 'mnca:index'
 
 router.get('/', (req, res, next) => {
 
-    trace(debug, 'Welcome')
+    trace(debug, 'Welcome session %o', req.session)
 
     res.locals.userinfo = req.session.userinfo
 

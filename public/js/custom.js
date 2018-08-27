@@ -307,12 +307,97 @@ document.addEventListener("DOMContentLoaded", function() {
 
     $('.ui.dropdown').dropdown()
 
+    $('.ui.dropdown.fw_service').dropdown('setting', 'onChange', function(ev) {
+
+        console.log('fw_service changed to ' + ev)
+
+        console.log('servicekeys ' + $('#fwServiceKeys').val())
+
+        $('div.iotlist').hide()
+
+        let fw_servicekeys = JSON.parse($('#fwServiceKeys').val(), null, 2)
+
+        if (ev != '*' && ev != '') {
+
+            fw_servicekeys = fw_servicekeys.filter(el => el.split('|')[0] == ev)
+
+            console.log(fw_servicekeys)
+
+            $('.ui.dropdown.fw_servicepath div.item').each(function(idx) {
+                let data_value = $(this).attr('data-value')
+
+                console.log('element ' + ev + '|' + data_value)
+
+                if ( /* !fw_servicekeys.includes(ev + '|' + data_value) && */ data_value != '' && data_value != '/*') {
+                    console.log('remove data-value ' + data_value)
+                    $(this).remove()
+                }
+
+            })
+
+        } else {
+
+            console.log(fw_servicekeys)
+
+        }
+
+        fw_servicekeys.forEach(el => {
+
+            let data_value = el.split('|')[1]
+
+            if ($('.ui.dropdown.fw_servicepath div.item[data-value="' + data_value + '"]').length == 0) {
+
+                console.log('add data-value ' + data_value)
+
+                $('.ui.dropdown.fw_servicepath div.item:last').after('<div class="item" data-value="' + data_value + '">' + data_value + '</div>')
+
+            }
+        })
+        //$('.ui.dropdown.fw_servicepath').dropdown('clear')
+        //$('.ui.dropdown.fw_servicepath').dropdown('restore defaults')
+
+        //let defval = $('.ui.dropdown.fw_servicepath div.item:first').text()
+
+        //console.log('defval ' + defval)
+
+        //$('.ui.dropdown.fw_servicepath').dropdown('set selected(' + defval + ')')
+
+        //$('.ui.dropdown.fw_servicepath').dropdown('activate')
+
+        //$('.ui.dropdown.fw_servicepath div.item:first').addClass('active')
+
+        //$('.ui.dropdown.fw_servicepath div.item:first').addClass('selected')
+
+        console.log('defaut data-value ' + $('.ui.dropdown.fw_servicepath div.item:first').attr('data-value'))
+
+        $('.ui.dropdown.fw_servicepath input').val($('.ui.dropdown.fw_servicepath div.item:first').attr('data-value'))
+
+        console.log('defaut text ' + $('.ui.dropdown.fw_servicepath div.item:first').text())
+
+        $('.ui.dropdown.fw_servicepath div.text').text($('.ui.dropdown.fw_servicepath div.item:first').text())
+        //$('.ui.dropdown.fw_servicepath').dropdown('refresh')
+
+    })
+
+    //$('.ui.dropdown').dropdown()
+
     if ($('#btnNoSel').length > 0) {
 
         $('#btnNoSel').on('click', function(ev) {
 
             $('#inpService').val('*')
             $('#inpSubService').val('/*')
+
+            return true
+        })
+    }
+
+    if ($('#btnNoSel2').length > 0) {
+
+        $('#btnNoSel2').on('click', function(ev) {
+
+            $('#inpService').val('')
+            $('#inpSubService').val('')
 
             return true
         })

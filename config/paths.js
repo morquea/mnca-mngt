@@ -1,3 +1,3 @@
-let paths = ['iot/services' /*, 'iot/devices' */ ]
+let paths = ['iot/services', 'iot/devices']
 
 module.exports = paths

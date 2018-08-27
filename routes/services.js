@@ -6,8 +6,8 @@ let rest = require('request-promise')
 
 let router = express.Router()
 
-const debug = 'mnca:service'
-const options = require('../config/options')
+let debug = 'mnca:service'
+let options = require('../config/options')
 const attributs = require('../config/attributs')
 const schemas = require('../config/schemas')
 
@@ -20,9 +20,6 @@ router.get('/', (request, response, next) => {
     response.locals.userinfo = request.session.userinfo
 
     let opts = options[path]
-
-    //opts.headers['Fiware-Service'] = ""
-    //opts.headers['Fiware-ServicePath'] = "/*"
 
     trace(debug, 'get ' + path + ' fw_service ' + request.session.fw_service + ' fw_servicepath ' + request.session.fw_servicepath)
 
@@ -46,8 +43,16 @@ router.get('/', (request, response, next) => {
 
             let fw_services = []
             let fw_servicepaths = []
+            let fw_servicekeys = []
 
             elements.forEach(el => {
+
+                let fw_servicekey = el.service + '|' + el.subservice
+
+                if (!fw_servicekeys.includes(fw_servicekey)) {
+                    fw_servicekeys.push(fw_servicekey)
+                }
+
                 if (!fw_services.includes(el.service)) {
                     fw_services.push(el.service)
                 }
@@ -67,7 +72,8 @@ router.get('/', (request, response, next) => {
             //request.session.fw_servicepaths = fw_servicepaths
             response.locals.fw_services = fw_services
             response.locals.fw_servicepaths = fw_servicepaths
-
+            response.locals.fw_servicekeys = JSON.stringify(fw_servicekeys)
+            request.session.fw_servicekeys = fw_servicekeys
 
             if (request.session.fw_service != "*") {
                 elements = elements.filter(el => request.session.fw_service == el.service)

@@ -6,6 +6,8 @@ let app = express()
 //let router = express.Router()
 let bodyParser = require("body-parser")
 let session = require('express-session')
+//let Sequelize = require('sequelize')
+//let cookieSession = require('cookie-session')
 let moment = require('./config/moment')
 let MemoryStore = require('memorystore')(session)
 let rest = require('request-promise')
@@ -14,21 +16,29 @@ let indexRouter = require('./routes/index')
 let iotRouter = require('./routes/iot')
 let authRouter = require('./routes/auth')
 let servicesRouter = require('./routes/services')
+let devicesRouter = require('./routes/devices')
 
 //const paths = require('./config/paths')
 const options = require('./config/options')
 const attributs = require('./config/attributs')
 const schemas = require('./config/schemas')
 
-const debug = 'mnca:server'
-
-//const debug = ''
+let debug = 'mnca:server'
 
 // moteur de template
 app.set('view engine', 'ejs')
 
 // middewares lancés avant les routes
 //app.use(morgan('combined'))
+
+app.set('etag', false)
+
+/*app.use(function(req, res, next) {
+    res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate, max-age=0')
+    res.header('Expires', '-1')
+    res.header('Pragma', 'no-cache')
+    next()
+}) */
 
 app.use('/assets', express.static('public'))
 
@@ -43,17 +53,29 @@ app.use(session({
     secret: 'mnca secret key',
     resave: true,
     saveUninitialized: true,
-    cookie: { secure: false, maxAge: 43200000 } // 12h
-    //cookie: { secure: false, maxAge: 60000 } // 1min
+    cookie: { secure: false, maxAge: 3600 * 1000 } // 1h
 
 }))
 
+/*app.use(session({
+    secret: 'mnca secret key',
+    store: sequelizeStore,
+    resave: false,
+    saveUninitialized: true
+
+})) */
+
+
+/* app.use(cookieSession({
+    name: 'session',
+    keys: ['mnca secret key'],
+    maxAge: 12 * 60 * 60 * 1000
+})) */
+
 app.use(passport.initialize())
-app.use(passport.session())
+//app.use(passport.session())
 
 app.use(require('./middlewares/flash'))
-
-app.use(require('./middlewares/auth'))
 
 // routes
 
@@ -62,6 +84,13 @@ app.use('/', indexRouter)
 app.use('/iot', iotRouter)
 app.use('/auth', authRouter)
 app.use('/api/iot/services', servicesRouter)
+app.use('/api/iot/devices', devicesRouter)
+
+
+//debug.enabled = true
+//console.log(debug)
+//console.log('debug enabled')
+trace(debug, 'init app done')
 
 //listen
 app.listen('8888')
