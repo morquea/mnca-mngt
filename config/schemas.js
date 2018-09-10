@@ -261,7 +261,7 @@ let schemas = {
             },
             "entity_type": {
                 "type": "string",
-                "default": "thing"
+                "isNotEmpty": true
             },
             "internal_attributes": {
                 "type": "array",
