@@ -459,7 +459,7 @@ router.post('/update',
 
             rest(opts)
                 .then(function(body) {
-                    trace(debug, 'PUT backend OK ' + body)
+                    //trace(debug, 'PUT backend OK ' + body)
                     request.flash('success', 'Modification du JSON prise en compte')
                     next()
                 })
@@ -542,7 +542,7 @@ router.post('/delete',
 
         rest(opts)
             .then(function(body) {
-                trace(debug, 'delete on ' + uri + ' OK ' + body)
+                //trace(debug, 'delete on ' + uri + ' OK ' + body)
                 request.flash('success', 'Suppression du JSON prise en compte')
                 next()
             })

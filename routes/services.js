@@ -11,8 +11,8 @@ let options = require('../config/options')
 const attributs = require('../config/attributs')
 const schemas = require('../config/schemas')
 const editor = require('../config/editor')
-const Ajv = require('ajv')
-const AjvErrors = require('ajv-errors')
+//const Ajv = require('ajv')
+//const AjvErrors = require('ajv-errors')
 //const jsf = require('json-schema-faker')
 
 router.get('/', (request, response, next) => {
@@ -278,11 +278,11 @@ router.post('/',
                     })
 
                     let json = {
-                        "service": "testservice",
-                        "subservice": "/testalain",
-                        "apikey": "ccc",
-                        "resource": "/ddd",
-                        "entity_type": "thing",
+                        "service": "",
+                        "subservice": "",
+                        "apikey": "",
+                        "resource": "",
+                        "entity_type": "",
                         //"attributes": [{}],
                         "attributes": [],
                         "lazy": [],
@@ -291,7 +291,7 @@ router.post('/',
                         "static_attributes": []
                     }
 
-                    let ajv = new Ajv({ allErrors: true, useDefaults: true, jsonPointers: true })
+                    /* let ajv = new Ajv({ allErrors: true, useDefaults: true, jsonPointers: true })
                     AjvErrors(ajv, { singleError: true })
                     ajv.addKeyword('isNotEmpty', {
                         type: 'string',
@@ -303,8 +303,7 @@ router.post('/',
                     let validate = ajv.compile(schemas.services)
                     console.log(validate(json))
                     console.log(validate.errors)
-                    console.log(json)
-
+                    console.log(json) */
 
                     //let json = jsf(schemas.services)
 
@@ -489,7 +488,7 @@ router.post('/create',
 
         rest(opts)
             .then(function(body) {
-                trace(debug, 'post backend OK ' + body)
+                //trace(debug, 'post backend OK ' + body)
                 request.flash('success', 'Création du JSON prise en compte')
                 next()
             })
@@ -607,7 +606,7 @@ router.post('/update',
 
             rest(opts)
                 .then(function(body) {
-                    trace(debug, 'PUT backend OK ' + body)
+                    //trace(debug, 'PUT backend OK ' + body)
                     request.flash('success', 'Modification du JSON prise en compte')
                     next()
                 })
@@ -706,7 +705,7 @@ router.post('/clone',
 
         rest(opts)
             .then(function(body) {
-                trace(debug, 'post ' + path + ' OK ' + body)
+                //trace(debug, 'post ' + path + ' OK ' + body)
                 request.flash('success', 'Duplication du JSON prise en compte')
                 next()
             })
@@ -791,7 +790,7 @@ router.post('/delete',
 
         rest(opts)
             .then(function(body) {
-                trace(debug, 'delete on ' + uri + ' OK ' + body)
+                //trace(debug, 'delete on ' + uri + ' OK ' + body)
                 request.flash('success', 'Suppression du JSON prise en compte')
                 next()
             })
