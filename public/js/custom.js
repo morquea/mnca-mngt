@@ -5,14 +5,37 @@ document.addEventListener("DOMContentLoaded", function() {
 
         const container = document.getElementById("jsoneditor")
 
-        const ajv = new window.Ajv({ allErrors: true, verbose: true })
+        const ajv = new window.Ajv({
+            allErrors: true,
+            verbose: true,
+            useDefaults: true,
+            //jsonPointers: true  //not working with jsoneditor
+        })
+
+        ajv.addKeyword('isNotEmpty', {
+            type: 'string',
+            validate: function(schema, data, parent_schema, current_data_path, parent_data_object, parent_property_name) {
+                //console.log('isnoempty')
+                //console.log(JSON.stringify({ schema, data, parent_schema, current_data_path, parent_data_object, parent_property_name }, null, 2))
+
+                return typeof data === 'string' && data.trim() !== ''
+            },
+            errors: false
+        })
 
         let schema = JSON.parse($('#jsonschema').val(), null, 2)
+
+        let validate = ajv.compile(schema)
+
+        // retrieve rootName of json from  form action attribute: /api/iot/<rootName>/xxxx
+        let rootName = $('form').attr('action').split('/')[3]
+        rootName = rootName.substr(0, rootName.length - 1) // remove s char at end
 
         let options = {
             ajv: ajv,
             mode: 'view',
-            sortObjectKeys: true
+            sortObjectKeys: true,
+            name: rootName
         }
 
         if (document.getElementById('readonly')) {
@@ -21,22 +44,44 @@ document.addEventListener("DOMContentLoaded", function() {
 
             let readwrite = JSON.parse($('#readwrite').val())
 
+            let templates = JSON.parse($('#templates').val(), null, 2)
+
+            let context = JSON.parse($('#context').val(), null, 2)
+
+            let itemName = JSON.parse($('#itemName').val(), null, 2)
+
+
             options = {
                 ajv: ajv,
                 mode: 'tree',
                 sortObjectKeys: true,
-                onEditable: function(node) {
+                name: rootName,
+                schema: schema,
+                templates: templates,
+                context: context,
+                itemName: itemName,
 
+                onEditable: function(node) {
+                    //console.log('oneditable')
+                    //console.log(node)
+                    if (node.path === null) {
+                        return { field: false, value: false }
+                    }
                     //if (['_id', 'service', 'subservice', 'apikey', 'resource', '__v'].includes(node.field)) {
-                    if (readonly.includes(node.field)) {
+                    if (node.path.length >= 1 && readonly.includes(node.path[0])) {
                         //console.log('found field ' + node.field + ' value ' + node.value + ' path ' + node.path)
                         return { field: false, value: false }
                     }
-                    if (readwrite.includes(node.field)) {
+                    if (node.path.length >= 1 && readwrite.includes(node.path[0])) {
                         //console.log('found field ' + node.field + ' value ' + node.value + ' path ' + node.path)
-                        return { field: false, value: true }
+                        if (node.path.length <= 3) {
+                            return { field: true, value: true }
+                        } else {
+                            return { field: false, value: true }
+                        }
                     }
-                    return { field: true, value: true }
+
+                    return { field: false, value: false }
                 },
                 onError: function(er) {
                     console.log('handler error ' + er)
@@ -45,7 +90,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         let editor = new window.JSONEditor(container, options)
-        editor.setSchema(schema)
+        //editor.setSchema(schema)
 
         let json = JSON.parse(document.getElementById("json").value)
 
@@ -75,6 +120,8 @@ document.addEventListener("DOMContentLoaded", function() {
             })
 
             saveBtn.addEventListener('click', function(event) {
+
+
                 let jsonTmp = editor.get()
 
                 let validate = ajv.compile(schema)
@@ -90,7 +137,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     console.log(errorFields)
                     return false
                 } else {
-                    console.log('OK AJV!!')
+                    //console.log('OK AJV!!')
                     $('#json').val(JSON.stringify(jsonTmp, null, 2))
                     editBtn.classList.remove('disabled')
                     saveBtn.classList.add('disabled')
@@ -171,7 +218,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 json.apikey = ''
                 json.resource = ''
 
-                editor.set(json)
             })
 
             $('#btnUndo2').on('click', function(ev) {
@@ -197,8 +243,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 $('div.ui.negative.message').hide().text('')
 
-                console.log('input createservice change ' + $(this).val())
-
                 let servicekeytab = []
 
                 $('input.cloneservice').each(function() {
@@ -222,7 +266,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
                     if (servicekeys.includes(servicekey)) {
 
-                        console.log('found servicekey ')
+                        //console.log('found servicekey ')
                         $('div.ui.negative.message').show().text('La définition du service existe déjà')
                         $('#btnDef').addClass('disabled')
 
@@ -309,9 +353,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
     $('.ui.dropdown.fw_service').dropdown('setting', 'onChange', function(ev) {
 
-        console.log('fw_service changed to ' + ev)
-
-        console.log('servicekeys ' + $('#fwServiceKeys').val())
+        //console.log('fw_service changed to ' + ev)
+        //console.log('servicekeys ' + $('#fwServiceKeys').val())
 
         $('div.iotlist').hide()
 
@@ -321,15 +364,15 @@ document.addEventListener("DOMContentLoaded", function() {
 
             fw_servicekeys = fw_servicekeys.filter(el => el.split('|')[0] == ev)
 
-            console.log(fw_servicekeys)
+            //console.log(fw_servicekeys)
 
             $('.ui.dropdown.fw_servicepath div.item').each(function(idx) {
                 let data_value = $(this).attr('data-value')
 
-                console.log('element ' + ev + '|' + data_value)
+                //console.log('element ' + ev + '|' + data_value)
 
                 if ( /* !fw_servicekeys.includes(ev + '|' + data_value) && */ data_value != '' && data_value != '/*') {
-                    console.log('remove data-value ' + data_value)
+                    //console.log('remove data-value ' + data_value)
                     $(this).remove()
                 }
 
@@ -337,7 +380,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         } else {
 
-            console.log(fw_servicekeys)
+            //console.log(fw_servicekeys)
 
         }
 
@@ -347,39 +390,22 @@ document.addEventListener("DOMContentLoaded", function() {
 
             if ($('.ui.dropdown.fw_servicepath div.item[data-value="' + data_value + '"]').length == 0) {
 
-                console.log('add data-value ' + data_value)
+                //console.log('add data-value ' + data_value)
 
                 $('.ui.dropdown.fw_servicepath div.item:last').after('<div class="item" data-value="' + data_value + '">' + data_value + '</div>')
 
             }
         })
-        //$('.ui.dropdown.fw_servicepath').dropdown('clear')
-        //$('.ui.dropdown.fw_servicepath').dropdown('restore defaults')
 
-        //let defval = $('.ui.dropdown.fw_servicepath div.item:first').text()
-
-        //console.log('defval ' + defval)
-
-        //$('.ui.dropdown.fw_servicepath').dropdown('set selected(' + defval + ')')
-
-        //$('.ui.dropdown.fw_servicepath').dropdown('activate')
-
-        //$('.ui.dropdown.fw_servicepath div.item:first').addClass('active')
-
-        //$('.ui.dropdown.fw_servicepath div.item:first').addClass('selected')
-
-        console.log('defaut data-value ' + $('.ui.dropdown.fw_servicepath div.item:first').attr('data-value'))
+        //console.log('defaut data-value ' + $('.ui.dropdown.fw_servicepath div.item:first').attr('data-value'))
 
         $('.ui.dropdown.fw_servicepath input').val($('.ui.dropdown.fw_servicepath div.item:first').attr('data-value'))
 
-        console.log('defaut text ' + $('.ui.dropdown.fw_servicepath div.item:first').text())
+        //console.log('defaut text ' + $('.ui.dropdown.fw_servicepath div.item:first').text())
 
         $('.ui.dropdown.fw_servicepath div.text').text($('.ui.dropdown.fw_servicepath div.item:first').text())
-        //$('.ui.dropdown.fw_servicepath').dropdown('refresh')
 
     })
-
-    //$('.ui.dropdown').dropdown()
 
     if ($('#btnNoSel').length > 0) {
 
@@ -409,7 +435,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
             // si on reclick sur la page active, on ne fait rien
             if (!($(this).hasClass('active'))) {
-                console.log('click on a')
+                //console.log('click on a')
                 // on enlève l'ancienne page active et on active la courante
                 $(".pagination a.active").removeClass('active')
                 $(this).addClass('active')

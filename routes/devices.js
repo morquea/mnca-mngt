@@ -10,6 +10,7 @@ let debug = 'mnca:device'
 let options = require('../config/options')
 const attributs = require('../config/attributs')
 const schemas = require('../config/schemas')
+const editor = require('../config/editor')
 
 router.get('/', (request, response) => {
 
@@ -268,6 +269,13 @@ router.post('/',
 
             response.redirect('/api/' + path)
         } else {
+
+            response.locals.templates = JSON.stringify(editor.templates[path])
+
+            response.locals.context = JSON.stringify(editor.context[path])
+
+            response.locals.itemName = JSON.stringify(editor.itemName[path])
+
             next()
         }
     },
@@ -301,6 +309,7 @@ router.post('/',
 
                 //console.log(resp)
 
+                // on récupère la liste dans un array qu'il y en ait un ou plusieurs
                 let elements = []
 
                 if (typeof resp.count === "undefined") {
@@ -312,16 +321,29 @@ router.post('/',
                     elements = resp.devices
                 }
 
-
-
-                //console.log('attrs.key ' + action[attrs.key])
-
+                // on récupère l'élément avec la bonne clé
                 let element = elements.find((el) => el[attrs.key] == action[attrs.key])
 
+                // on ne récupère que les attributs readonly et readwrite
+                let upd_attrs = [...attrs.readonly.update, ...attrs.readwrite.update]
+
+                let elm_attrs = Object.keys(element)
+
+                elm_attrs.forEach(attr => {
+
+                    if (!upd_attrs.includes(attr)) {
+                        delete element[attr]
+                    }
+
+                })
+
+                // on stocke l'élément
                 response.locals.json = JSON.stringify(element)
 
                 request.session.json = element
 
+
+                // en update, on stocke la clé, les attibuts redonly et readwrite
                 if (action.todo != 'delete') {
 
                     response.locals[attrs.key] = action[attrs.key]
@@ -331,8 +353,6 @@ router.post('/',
                     response.locals.readwrite = JSON.stringify(attrs.readwrite[action.todo])
 
                 }
-
-                //console.log(response.locals)
 
                 //console.log('session json ' + JSON.stringify(request.session.json))
                 trace(debug, 'render pages/' + path + '/' + action.todo)

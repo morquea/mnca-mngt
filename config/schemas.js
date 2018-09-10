@@ -4,64 +4,137 @@ let schemas = {
         "properties": {
             "device_id": {
                 "type": "string",
-                "pattern": "^[\x20-\x7F]+$"
+                "pattern": "^[ -~]+$"
             },
             "service_path": {
                 "type": "string",
-                "pattern": "^\/[\x20-\x7F]+$"
+                "pattern": "^\/[ -~]+$"
             },
             "service": {
                 "type": "string",
-                "pattern": "^[\x20-\x7F]+$"
+                "pattern": "^[ -~]+$"
             },
             "entity_type": {
                 "type": "string",
-                "pattern": "^thing$"
+                "pattern": "^[ -~]+$"
             },
             "entity_name": {
                 "type": "string",
-                "pattern": "^[\x20-\x7F]+$"
+                "pattern": "^[ -~]+$"
             },
             "attributes": {
                 "type": "array",
+                "uniqueItems": true,
                 "items": {
+                    "title": "attribute",
                     "type": "object",
+                    "minProperties": 3,
+                    "maxProperties": 3,
                     "properties": {
                         "object_id": {
-                            "type": "string"
+                            "type": "string",
+                            "isNotEmpty": true,
+                            //    "default": "foo"
                         },
                         "name": {
-                            "type": "string"
+                            "type": "string",
+                            "isNotEmpty": true,
+                            //    "default": "bar"
                         },
                         "type": {
-                            "enum": ["string", "float", "integer", "geo:point", "geo:line", "geo:box", "geo:json"]
+                            "type": "string",
+                            "isNotEmpty": true,
+                            //    "default": "baz"
                         }
                     },
-                    "required": ["object_id", "name", "type"]
+                    "required": ["object_id", "name", "type"],
+                    "additionalProperties": false
+
                 }
             },
             "lazy": {
-                "type": "array"
+                "type": "array",
+                "maxItems": 0,
+                "uniqueItems": true,
+                "items": {
+                    "type": "object",
+                    "minProperties": 3,
+                    "maxProperties": 3,
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "isNotEmpty": true,
+
+                        },
+                        "type": {
+                            'type': "string",
+                            "isNotEmpty": true,
+
+                        },
+                        "value": {
+                            "type": "string",
+                            "isNotEmpty": true,
+
+                        }
+                    },
+                    "required": ["name", "type", "value"],
+                    "additionalProperties": false
+                }
             },
             "commands": {
-                "type": "array"
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                    "type": "object",
+                    "minProperties": 3,
+                    "maxProperties": 3,
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "isNotEmpty": true,
+
+                        },
+                        "type": {
+                            'type': "string",
+                            "isNotEmpty": true,
+
+                        },
+                        "value": {
+                            "type": "string",
+                            "isNotEmpty": true,
+
+                        }
+                    },
+                    "required": ["name", "type", "value"],
+                    "additionalProperties": false
+                }
             },
             "static_attributes": {
                 "type": "array",
+                "uniqueItems": true,
                 "items": {
                     "type": "object",
+                    "minProperties": 3,
+                    "maxProperties": 3,
                     "properties": {
                         "name": {
-                            "type": "string"
+                            "type": "string",
+                            "isNotEmpty": true,
+
                         },
                         "type": {
-                            "enum": ["string", "float", "integer", "geo:point", "geo:line", "geo:box", "geo:json"]
+                            'type': "string",
+                            "isNotEmpty": true,
+
                         },
                         "value": {
-                            "type": "string"
+                            "type": "string",
+                            "isNotEmpty": true,
+
                         }
                     },
-                    "required": ["value", "name", "type"],
+                    "required": ["name", "type", "value"],
+                    "additionalProperties": false
                 }
             }
         },
@@ -77,19 +150,19 @@ let schemas = {
             },
             "subservice": {
                 "type": "string",
-                "pattern": "^\/[\x20-\x7F]+$"
+                "pattern": "^\/[ -~]+$"
             },
             "service": {
                 "type": "string",
-                "pattern": "^[\x20-\x7F]+$"
+                "pattern": "^[ -~]+$"
             },
             "apikey": {
                 "type": "string",
-                "pattern": "^[\x20-\x7F]+$"
+                "pattern": "^[ -~]+$"
             },
             "resource": {
                 "type": "string",
-                "pattern": "^\/[\x20-\x7F]+$"
+                "pattern": "^\/[ -~]+$"
             },
             "__v": {
                 "type": "number",
@@ -102,54 +175,150 @@ let schemas = {
             "attributes": {
                 "type": "array",
                 "minItems": 1,
+                "uniqueItems": true,
                 "items": {
+                    "title": "attribute",
                     "type": "object",
+                    "minProperties": 3,
+                    "maxProperties": 3,
                     "properties": {
                         "object_id": {
-                            "type": "string"
+                            "type": "string",
+                            "isNotEmpty": true,
+                            //    "default": "foo"
                         },
                         "name": {
-                            "type": "string"
+                            "type": "string",
+                            "isNotEmpty": true,
+                            //    "default": "bar"
                         },
                         "type": {
-                            "enum": ["string", "float", "integer", "geo:point", "geo:line", "geo:box", "geo:json"]
+                            "type": "string",
+                            "isNotEmpty": true,
+                            //    "default": "baz"
                         }
                     },
-                    "required": ["object_id", "name", "type"]
+                    "required": ["object_id", "name", "type"],
+                    "additionalProperties": false
+
                 }
             },
             "lazy": {
-                "type": "array"
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                    "type": "object",
+                    "minProperties": 3,
+                    "maxProperties": 3,
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "isNotEmpty": true,
+
+                        },
+                        "type": {
+                            'type': "string",
+                            "isNotEmpty": true,
+
+                        },
+                        "value": {
+                            "type": "string",
+                            "isNotEmpty": true,
+
+                        }
+                    },
+                    "required": ["name", "type", "value"],
+                    "additionalProperties": false
+                }
             },
             "commands": {
-                "type": "array"
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                    "type": "object",
+                    "minProperties": 3,
+                    "maxProperties": 3,
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "isNotEmpty": true,
+
+                        },
+                        "type": {
+                            'type': "string",
+                            "isNotEmpty": true,
+
+                        },
+                        "value": {
+                            "type": "string",
+                            "isNotEmpty": true,
+
+                        }
+                    },
+                    "required": ["name", "type", "value"],
+                    "additionalProperties": false
+                }
             },
             "entity_type": {
                 "type": "string",
-                "pattern": "^thing$"
+                "default": "thing"
             },
             "internal_attributes": {
-                "type": "array"
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                    "type": "object",
+                    "minProperties": 3,
+                    "maxProperties": 3,
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "isNotEmpty": true,
+
+                        },
+                        "type": {
+                            'type': "string",
+                            "isNotEmpty": true,
+
+                        },
+                        "value": {
+                            "type": "string",
+                            "isNotEmpty": true,
+
+                        }
+                    },
+                    "required": ["name", "type", "value"],
+                    "additionalProperties": false
+                }
             },
             "static_attributes": {
                 "type": "array",
+                "uniqueItems": true,
                 "items": {
                     "type": "object",
+                    "minProperties": 3,
+                    "maxProperties": 3,
                     "properties": {
                         "name": {
-                            "type": "string"
+                            "type": "string",
+                            "isNotEmpty": true,
+
                         },
                         "type": {
-                            "enum": ["string", "float", "integer", "geo:point", "geo:line", "geo:box", "geo:json"]
+                            'type': "string",
+                            "isNotEmpty": true,
+
                         },
                         "value": {
-                            "type": "string"
+                            "type": "string",
+                            "isNotEmpty": true,
+
                         }
                     },
-                    "required": ["value", "name", "type"],
+                    "required": ["name", "type", "value"],
+                    "additionalProperties": false
                 }
             }
-
         },
         "required": ["service", "subservice", "apikey", "resource", "entity_type", "attributes"],
         "additionalProperties": false

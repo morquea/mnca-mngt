@@ -240,7 +240,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	JSONEditor.prototype.DEBOUNCE_INTERVAL = 150;
 
 	JSONEditor.VALID_OPTIONS = [
-	  'ajv', 'schema', 'schemaRefs','templates', 'context', 'itemName', // AME-U
+	  'ajv', 'schema', 'schemaRefs','templates',
 	  'ace', 'theme', 'autocomplete',
 	  'onChange', 'onChangeJSON', 'onChangeText',
 	  'onEditable', 'onError', 'onEvent', 'onModeChange', 'onValidate',
@@ -36598,15 +36598,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    node.fieldEditable = (this.type == 'object');
 	    if (this.type == 'array') {
 	      node.index = this.childs.length;
-	      // AME-A BEG
-	      var itemName = this.editor.options ? this.editor.options.itemName: undefined;
-	      var children = (itemName) ? itemName.children : undefined;
-	      var field = (children && children[this.field]) ? children[this.field] : undefined;
-	      //console.log('array item field ' + field);
-	      if (field) {
-		node.setField(field);
-	      }
-	      // AME-A END
 	    }
 	    if (this.type === 'object' && node.field == undefined) {
 	      // initialize field value if needed
@@ -37632,52 +37623,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    dom.tr.appendChild(tdDrag);
 
-	    //AME-A BEG Get the context menu options
-	    var contextOptions = this.editor.options ? this.editor.options.context : undefined;
-	    //Get the items with a defined context menu
-	    var menuItems = (contextOptions) ? contextOptions.items : undefined;
-	    //Get the items of which the children have a defined context menu
-	    var menuChildren = (contextOptions) ? contextOptions.children : undefined;
-	    //Check if there is any defined context for the current node
-	    var itemWithContextMenu = menuItems && menuItems[this.field];
-	    //Check if there is any defined context for the parent of the current node
-	    var childWithContextMenu = menuChildren && this.parent && menuChildren[this.parent.field];
-	    //Set a flag indicating that the current node has a context menu that must be displayed
-	    this.displayContextMenu = itemWithContextMenu || childWithContextMenu;
-	    //console.log('context of node');
-	    var tdisplayContextMenu = this.displayContextMenu;
-	    var tfield = this.field;
-	    var tparentfield = this.parent && this.parent.field;
-	    var that = this;
-	    //console.log({that, contextOptions, menuItems, menuChildren, itemWithContextMenu, childWithContextMenu, tdisplayContextMenu, tfield, tparentfield}); 
-	    //AME-A END
-	    //AME-D create context menu
+	    // create context menu
 	    var tdMenu = document.createElement('td');
-	    /* AME-D 
 	    var menu = document.createElement('button');
 	    menu.type = 'button';
 	    dom.menu = menu;
 	    menu.className = 'jsoneditor-button jsoneditor-contextmenu';
 	    menu.title = translate('actionsMenu');
 	    tdMenu.appendChild(dom.menu);
-	    */
-	   //AME-A BEG
-	   // Attach the context menu in the DOM
-	   if (this.displayContextMenu) {
-	   	//Only the permitted menu actions will be displayed in the context menu
-		this.contextMenuActions = (itemWithContextMenu && menuItems) ?
-		menuItems[this.field] : (childWithContextMenu && menuChildren) ? menuChildren[this.parent.field] : [];
-		var menu = document.createElement('button');
-		dom.menu = menu;
-		menu.className = 'jsoneditor-button jsoneditor-contextmenu';
-		menu.title = 'Click to open the actions menu (Ctrl+M)';
-		tdMenu.appendChild(dom.menu);
-	   } else {
-		//Allow special theming for columns without context menu
-		//(e.g. reduce the width of the column)
-		tdMenu.className = 'jsoneditor-no-contextmenu';
-	    }
-	    //AME-A END
 	    dom.tr.appendChild(tdMenu);
 	  }
 
@@ -39790,14 +39743,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  'string': translate('stringType')
 	};
 
-	//AME-D Node.prototype.addTemplates = function (menu, append) {
-	//AME-A BEG
-	Node.prototype.addTemplates = function (menu, append, menuActions) {
-	//AME-A END
+	Node.prototype.addTemplates = function (menu, append) {
 	    var node = this;
 	    var templates = node.editor.options.templates;
 	    if (templates == null) return;
-	    if (templates.length && menu.length) {
+	    if (templates.length) {
 	        // create a separator
 	        menu.push({
 	            'type': 'separator'
@@ -39810,16 +39760,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        node._onInsertBefore(name, data);
 	    };
 	    templates.forEach(function (template) {
-		//AME-A BEG
-		if (!menuActions || menuActions.indexOf(template.text) >= 0) {
-		//AME-A END
-	        	menu.push({
-	            		text: template.text,
-	            		className: (template.className || 'jsoneditor-type-object'),
-	            		title: template.title,
-	            		click: (append ? appendData.bind(this, template.field, template.value) : insertData.bind(this, template.field, template.value))
-	        	});
-		} //AME-A
+	        menu.push({
+	            text: template.text,
+	            className: (template.className || 'jsoneditor-type-object'),
+	            title: template.title,
+	            click: (append ? appendData.bind(this, template.field, template.value) : insertData.bind(this, template.field, template.value))
+	        });
 	    });
 	};
 
@@ -39835,139 +39781,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var titles = Node.TYPE_TITLES;
 	  var items = [];
 
-	  //AME-A BEG
-	  //Get the permitted context menu actions of the node
-	  var menuActions = this.contextMenuActions ? this.contextMenuActions : [];
-	  //Build the submenu once and reuse it where needed
-	  var typeSubMenu = [];
-	  var appendSubMenu = [];
-	  var insertSubMenu = [];
-	  if(!menuActions || menuActions.indexOf('Auto') >= 0){
-	  	typeSubMenu.push({
-	  		text: translate('auto'),
-			className: 'jsoneditor-type-auto' +
-		        (this.type == 'auto' ? ' jsoneditor-selected' : ''),
-		        title: titles.auto,
-		        click: function () {
-		        	node._onChangeType('auto');
-			}
-		});
-		appendSubMenu.push({
-	                text: translate('auto'),
-	                className: 'jsoneditor-type-auto',
-	                title: titles.auto,
-	                click: function () {
-	                    node._onAppend('', '', 'auto');
-	                }
-		});
-		insertSubMenu.push({
-			text: translate('auto'),
-	                className: 'jsoneditor-type-auto',
-	                title: titles.auto,
-	                click: function () {
-	                    node._onInsertBefore('', '', 'auto');
-			}
-		});
-
-	  }
-	  
-	  if(!menuActions || menuActions.indexOf('Array') >= 0){
-	        typeSubMenu.push({
-	        	text: translate('array'),
-			className: 'jsoneditor-type-array' +
-			(this.type == 'array' ? ' jsoneditor-selected' : ''),
-			title: titles.array,
-			click: function () {
-				node._onChangeType('array');
-			}
-		});
-		appendSubMenu.push({
-	                text: translate('array'),
-	                className: 'jsoneditor-type-array',
-	                title: titles.array,
-	                click: function () {
-	                    node._onAppend('', '', 'array');
-	                }
-		});
-		insertSubMenu.push({
-			text: translate('array'),
-	                className: 'jsoneditor-type-array',
-	                title: titles.array,
-	                click: function () {
-	                    node._onInsertBefore('', '', 'array');
-			}
-		});
-  
-	  }
-
-	  if(!menuActions || menuActions.indexOf('Object') >= 0){
-		typeSubMenu.push({
-			text: translate('object'),
-			className: 'jsoneditor-type-object' +
-			(this.type == 'object' ? ' jsoneditor-selected' : ''),
-			title: titles.object,
-			click: function () {
-				node._onChangeType('object');
-			}
-		});
-		appendSubMenu.push({
-	                text: translate('object'),
-	                className: 'jsoneditor-type-object',
-	                title: titles.object,
-	                click: function () {
-	                    node._onAppend('', '', 'object');
-	                }
-		});
-		insertSubMenu.push({
-			text: translate('object'),
-	                className: 'jsoneditor-type-object',
-	                title: titles.object,
-	                click: function () {
-	                    node._onInsertBefore('', '', 'object');
-			}
-		});
-	
-	  }
-
-	  if(!menuActions || menuActions.indexOf('String') >= 0){
-		typeSubMenu.push({
-		  	text: translate('string'),
-			className: 'jsoneditor-type-string' +
-			(this.type == 'string' ? ' jsoneditor-selected' : ''),
-			title: titles.string,
-			click: function () {
-				node._onChangeType('string');
-			}
-		});
-		appendSubMenu.push({
-	                text: translate('string'),
-	                className: 'jsoneditor-type-string',
-	                title: titles.string,
-	                click: function () {
-	                    node._onAppend('', '', 'string');
-	                }
-		});
-		insertSubMenu.push({
-			text: translate('string'),
-	                className: 'jsoneditor-type-string',
-	                title: titles.string,
-	                click: function () {
-	                    node._onInsertBefore('', '', 'string');
-			}
-		});
- 
-	  }
-	  //AME-A END
-	  // AME-D if (this.editable.value) {
-
-	  //AME-A BEG Attach the submenu in the respective first level menu items
-	  if (this.editable.value && (!menuActions || menuActions.indexOf('Type') >= 0) ) {
-          //AME-A END
+	  if (this.editable.value) {
 	    items.push({
 	      text: translate('type'),
 	      title: translate('typeTitle'),
 	      className: 'jsoneditor-type-' + this.type,
-	      /* AME-D
 	      submenu: [
 	        {
 	          text: translate('auto'),
@@ -40005,17 +39823,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	            node._onChangeType('string');
 	          }
 	        }
-	      ] */
-	      //AME-A BEG
-              submenu: typeSubMenu
-	      //AME-A END
+	      ]
 	    });
 	  }
 
-	  //AME-D if (this._hasChilds()) {
-	  //AME-A BEG
-	  if (this._hasChilds() && (!menuActions || menuActions.indexOf('Sort') >= 0) ) {
-	  //AME-A END
+	  if (this._hasChilds()) {
 	    items.push({
 	      text: translate('sort'),
 	      title: translate('sortTitle', {type: this.type}),
@@ -40025,11 +39837,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        showSortModal(node, anchor)
 	      }
 	    });
-	  //AME-A BEG
-	  }
-	  
-	  if (this._hasChilds() && (!menuActions || menuActions.indexOf('Transform') >= 0) ) {
-	  //AME-A END
 
 	    items.push({
 	      text: translate('transform'),
@@ -40052,11 +39859,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    // create append button (for last child node only)
 	    var childs = node.parent.childs;
-	    //AME-D if (node == childs[childs.length - 1]) {
-            //AME-A BEG
-            if (node == childs[childs.length - 1] && (!menuActions || menuActions.indexOf('Append') >= 0) ) {
-            //AME-A END
-	   /* AME-D
+	    if (node == childs[childs.length - 1]) {
 	        var appendSubmenu = [
 	            {
 	                text: translate('auto'),
@@ -40091,8 +39894,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	            }
 	        ];
-	        node.addTemplates(appendSubmenu, true); */
-		node.addTemplates(appendSubMenu, true, menuActions); // AME-A
+	        node.addTemplates(appendSubmenu, true);
 	        items.push({
 	            text: translate('appendText'),
 	            title: translate('appendTitle'),
@@ -40101,14 +39903,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	            click: function () {
 	                node._onAppend('', '', 'auto');
 	            },
-	            submenu: appendSubMenu
+	            submenu: appendSubmenu
 	        });
 	    }
 
 
 
 	    // create insert button
-	   /* AME-D
 	    var insertSubmenu = [
 	        {
 	            text: translate('auto'),
@@ -40143,8 +39944,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	        }
 	    ];
-	    node.addTemplates(insertSubmenu, false); */
-	    node.addTemplates(insertSubMenu, false, menuActions);  //AME-A
+	    node.addTemplates(insertSubmenu, false);
 	    items.push({
 	      text: translate('insert'),
 	      title: translate('insertTitle'),
@@ -40153,41 +39953,34 @@ return /******/ (function(modules) { // webpackBootstrap
 	      click: function () {
 	        node._onInsertBefore('', '', 'auto');
 	      },
-	      submenu: insertSubMenu
+	      submenu: insertSubmenu
 	    });
 
 	    if (this.editable.field) {
-	    	if (!menuActions || menuActions.indexOf('Duplicate') >= 0) { //AME-A
-	      		// create duplicate button
-	      		items.push({
-	        		text: translate('duplicateText'),
-	        		title: translate('duplicateField'),
-	        		className: 'jsoneditor-duplicate',
-	        		click: function () {
-	          			Node.onDuplicate(node);
-	        		}
-	      		});
-		} //AME-A
+	      // create duplicate button
+	      items.push({
+	        text: translate('duplicateText'),
+	        title: translate('duplicateField'),
+	        className: 'jsoneditor-duplicate',
+	        click: function () {
+	          Node.onDuplicate(node);
+	        }
+	      });
 
-		if (!menuActions || menuActions.indexOf('Remove') >= 0) { //AME-A
-	
-	      		// create remove button
-	      		items.push({
-	        		text: translate('removeText'),
-	        		title: translate('removeField'),
-	        		className: 'jsoneditor-remove',
-	        		click: function () {
-	          			Node.onRemove(node);
-	        		}		
-	      		});
-		} //AME-A
+	      // create remove button
+	      items.push({
+	        text: translate('removeText'),
+	        title: translate('removeField'),
+	        className: 'jsoneditor-remove',
+	        click: function () {
+	          Node.onRemove(node);
+	        }
+	      });
 	    }
 	  }
 
-	  if (items.length > 0) {
-	  	var menu = new ContextMenu(items, {close: onClose});
-	  	menu.show(anchor, this.editor.frame);
-	  }
+	  var menu = new ContextMenu(items, {close: onClose});
+	  menu.show(anchor, this.editor.frame);
 	};
 
 	/**
@@ -42126,53 +41919,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	      dom.tdDrag = document.createElement('td');
 
 	      // create context menu
-              // AME-A BEG
-	      //Get the context menu options
-	      var contextOptions = this.editor.options ? this.editor.options.context : undefined;
-              //Get the items with a defined context menu
-	      var menuItems = (contextOptions) ? contextOptions.items : undefined;
-	      //Get the items of which the children have a defined context menu
-	      var menuChildren = (contextOptions) ? contextOptions.children : undefined;
-	      //Check if there is any defined context for the current node
-	      var itemWithContextMenu = menuItems && menuItems[this.field];
-	      //Check if there is any defined context for the parent of the current node
-	      var childWithContextMenu = menuChildren && this.parent && menuChildren[this.parent.field];
-	      //console.log('context of empty node');
-	      //Set a flag indicating that the current node has a context menu that must be displayed
-	      this.displayContextMenu = itemWithContextMenu || childWithContextMenu;
-	      var tdisplayContextMenu = this.displayContextMenu;
-	      var tfield = this.field;
-	      var tparentfield = this.parent && this.parent.field;
-	      var that = this;
-	      //console.log({that, contextOptions, menuItems, menuChildren, itemWithContextMenu, childWithContextMenu, tdisplayContextMenu, tfield, tparentfield}); 
-	      // AME-A END
 	      var tdMenu = document.createElement('td');
 	      dom.tdMenu = tdMenu;
-	      /* AME-D
 	      var menu = document.createElement('button');
 	      menu.type = 'button';
 	      menu.className = 'jsoneditor-button jsoneditor-contextmenu';
 	      menu.title = 'Click to open the actions menu (Ctrl+M)';
 	      dom.menu = menu;
-	      tdMenu.appendChild(dom.menu); */
-
-	      // AME-A BEG
-	      //Attach the context menu in the DOM
-	      if(this.displayContextMenu) {
-	      //Only the permitted menu actions will be displayed in the context menu
-	      	this.contextMenuActions = (itemWithContextMenu && menuItems) ?
-			menuItems[this.field] : (childWithContextMenu && menuChildren) ? menuChildren[this.parent.field] : [];
-		var menu = document.createElement('button');
-		menu.className = 'jsoneditor-button jsoneditor-contextmenu';
-		menu.title = 'Click to open the actions menu (Ctrl+M)';
-		dom.menu = menu;
-		tdMenu.appendChild(dom.menu);
-	      } else {
-		//Allow special theming for columns without context menu
-		//(e.g. reduce the width of the column)
-		tdMenu.className = 'jsoneditor-no-contextmenu';
-	      }
-	      // AME-A END
+	      tdMenu.appendChild(dom.menu);
 	    }
 
 	    // a cell for the contents (showing text 'empty')
@@ -42266,7 +42020,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  AppendNode.prototype.showContextMenu = function (anchor, onClose) {
 	    var node = this;
 	    var titles = Node.TYPE_TITLES;
-	    /* AME-D
 	    var appendSubmenu = [
 	        {
 	            text: translate('auto'),
@@ -42300,83 +42053,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	                node._onAppend('', '', 'string');
 	            }
 	        }
-	    ]; */
-	    // AME-A BEG
-	    //Get the permitted context menu actions of the node
-	    var menuActions = this.contextMenuActions ? this.contextMenuActions : [];
-	    //Build the submenu
-	    var appendSubMenu = [];
-	    
-	    if(!menuActions || menuActions.indexOf('Auto') >= 0){
-		appendSubMenu.push({
-	        	text: translate('auto'),
-	        	className: 'jsoneditor-type-auto',
-	        	title: titles.auto,
-	        	click: function () {
-	        		node._onAppend('', '', 'auto');
-			}
-		});
-	    }
-	
-	    if(!menuActions || menuActions.indexOf('Array') >= 0){
-		appendSubMenu.push({
-	        	text: translate('array'),
-	        	className: 'jsoneditor-type-array',
-	        	title: titles.array,
-	        	click: function () {
-	        		node._onAppend('', '', 'array');
-			}
-		});
-	    } 
-	    if(!menuActions || menuActions.indexOf('Object') >= 0){
-		appendSubMenu.push({
-	        	text: translate('object'),
-	        	className: 'jsoneditor-type-object',
-	        	title: titles.object,
-	        	click: function () {
-	        		node._onAppend('', '', 'object');
-			}
-		});
-	    }
-	    if(!menuActions || menuActions.indexOf('String') >= 0){
-		appendSubMenu.push({
-	        	text: translate('string'),
-	        	className: 'jsoneditor-type-string',
-	        	title: titles.string,
-	        	click: function () {
-	        		node._onAppend('', '', 'string');
-			}
-		});
-	    } 
-            	   
-	    node.addTemplates(appendSubMenu, true, menuActions);
-	    
-	    var items = [];
-	    if (!menuActions || menuActions.indexOf('Append') >= 0) {
-	    	items.push(
-	    // AME-A END
-            // AME-D node.addTemplates(appendSubmenu, true)
-	    // AME-D var items = [
+	    ];
+	    node.addTemplates(appendSubmenu, true);
+	    var items = [
 	      // create append button
-	      	{
-	        	'text': translate('appendText'),
-	        	'title': translate('appendTitleAuto'),
-	        	'submenuTitle': translate('appendSubmenuTitle'),
-	        	'className': 'jsoneditor-insert',
-	        	'click': function () {
-	          		node._onAppend('', '', 'auto');
-	        	},
-	        	'submenu': appendSubMenu
-	      	});
-	    // AME-D ];
-	    // AME-A BEG
-	    }
+	      {
+	        'text': translate('appendText'),
+	        'title': translate('appendTitleAuto'),
+	        'submenuTitle': translate('appendSubmenuTitle'),
+	        'className': 'jsoneditor-insert',
+	        'click': function () {
+	          node._onAppend('', '', 'auto');
+	        },
+	        'submenu': appendSubmenu
+	      }
+	    ];
 
-	    if(items.length > 0) {
-	    // AME-A END
-	    	var menu = new ContextMenu(items, {close: onClose});
-	    	menu.show(anchor, this.editor.content);
-	    } // AME-A
+	    var menu = new ContextMenu(items, {close: onClose});
+	    menu.show(anchor, this.editor.content);
 	  };
 
 	  /**

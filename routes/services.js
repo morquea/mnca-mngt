@@ -10,6 +10,10 @@ let debug = 'mnca:service'
 let options = require('../config/options')
 const attributs = require('../config/attributs')
 const schemas = require('../config/schemas')
+const editor = require('../config/editor')
+const Ajv = require('ajv')
+const AjvErrors = require('ajv-errors')
+//const jsf = require('json-schema-faker')
 
 router.get('/', (request, response, next) => {
 
@@ -198,6 +202,13 @@ router.post('/',
 
             response.redirect('/api/' + path)
         } else {
+
+            response.locals.templates = JSON.stringify(editor.templates[path])
+
+            response.locals.context = JSON.stringify(editor.context[path])
+
+            response.locals.itemName = JSON.stringify(editor.itemName[path])
+
             next()
         }
     },
@@ -267,21 +278,35 @@ router.post('/',
                     })
 
                     let json = {
-                        "service": "",
-                        "subservice": "",
-                        "apikey": "",
-                        "resource": "",
-                        "entity_type": "",
-                        "attributes": [{
-                            "object_id": "",
-                            "type": "",
-                            "name": ""
-                        }],
+                        "service": "testservice",
+                        "subservice": "/testalain",
+                        "apikey": "ccc",
+                        "resource": "/ddd",
+                        "entity_type": "thing",
+                        //"attributes": [{}],
+                        "attributes": [],
                         "lazy": [],
                         "commands": [],
                         "internal_attributes": [],
                         "static_attributes": []
                     }
+
+                    let ajv = new Ajv({ allErrors: true, useDefaults: true, jsonPointers: true })
+                    AjvErrors(ajv, { singleError: true })
+                    ajv.addKeyword('isNotEmpty', {
+                        type: 'string',
+                        validate: function(schema, data) {
+                            return typeof data === 'string' && data.trim() !== ''
+                        },
+                        errors: false
+                    })
+                    let validate = ajv.compile(schemas.services)
+                    console.log(validate(json))
+                    console.log(validate.errors)
+                    console.log(json)
+
+
+                    //let json = jsf(schemas.services)
 
                     response.locals.services = services
                     response.locals.subservices = subservices
@@ -295,8 +320,20 @@ router.post('/',
                         response.locals.subservices = [element.subservice]
 
                         //response.locals[attrs.key] = action[attrs.key]
+                        // on ne récupère que les attributs readonly et readwrite
+                        let act_attrs = [...attrs.readonly.clone, ...attrs.readwrite.clone]
 
-                        delete element._id
+                        let elm_attrs = Object.keys(element)
+
+                        elm_attrs.forEach(attr => {
+
+                            if (!act_attrs.includes(attr)) {
+                                delete element[attr]
+                            }
+
+                        })
+
+                        //delete element._id
 
                         json = element
 
@@ -324,6 +361,19 @@ router.post('/',
                     //console.log('attrs.key ' + action[attrs.key])
 
                     let element = elements.find((el) => el[attrs.key] == action[attrs.key])
+
+                    // on ne récupère que les attributs readonly et readwrite
+                    let act_attrs = [...attrs.readonly[action.todo], ...attrs.readwrite[action.todo]]
+
+                    let elm_attrs = Object.keys(element)
+
+                    elm_attrs.forEach(attr => {
+
+                        if (!act_attrs.includes(attr)) {
+                            delete element[attr]
+                        }
+
+                    })
 
                     response.locals.json = JSON.stringify(element)
 
@@ -435,7 +485,7 @@ router.post('/create',
             'json': true
         }
 
-        //console.log('opts to send ' + JSON.stringify(opts, null, 2))   
+        console.log('opts to send ' + JSON.stringify(opts, null, 2))
 
         rest(opts)
             .then(function(body) {

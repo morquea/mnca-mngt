@@ -94,10 +94,13 @@
                     </div>
                     <input id="inpServiceKeys" type="hidden" name="json_servicekeys" value='<%= json_servicekeys %>'>
                     <input type="hidden" name="json" id="json" value='<%= json %>'>
-                    <input type="hidden" name="jsonschema" id="jsonschema" value='<%= jsonschema %>'>
                     <input type="hidden" name="doit" id="doit" value="doit">
-                    <input type="hidden" name="readonly" id="readonly" value='<%= readonly %>'>
-                    <input type="hidden" name="readwrite" id="readwrite" value='<%= readwrite %>'>
+                    <input type="hidden" disabled name="jsonschema" id="jsonschema" value='<%= jsonschema %>'>
+                    <input type="hidden" disabled name="readonly" id="readonly" value='<%= readonly %>'>
+                    <input type="hidden" disabled name="readwrite" id="readwrite" value='<%= readwrite %>'>
+                    <input type="hidden" disabled name="templates" id="templates" value='<%= templates %>'>
+                    <input type="hidden" disabled name="context" id="context" value='<%= context %>'>
+                    <input type="hidden" disabled name="item_name" id="itemName" value='<%= itemName %>'>
                 </form>
             </div>
         </div>
