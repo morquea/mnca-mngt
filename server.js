@@ -52,7 +52,7 @@ app.use(session({
     secret: keys.session.secret,
     resave: true,
     saveUninitialized: true,
-    cookie: { secure: keys.session.cookie.secure, maxAge: keys.session.cookie.maxAge } // 1h
+    cookie: { secure: keys.session.cookie.secure, maxAge: parseInt(keys.session.cookie.maxAge) } // 1h
 
 }))
 

@@ -16,17 +16,17 @@ const keys = {
         port: (process.env.WEB_PORT || '8888')
     },
     session: {
-        secret: (process.env.SESSION_SECRET || 'mnca secret key'),
+        secret: (process.env.SESSION_SECRET || 'mnca-secret-key'),
         cookie: {
             secure: toBoolean(process.env.HTTPS_ENABLED, false),
-            maxAge: (process.env.SESSION_EXPIRES || (3600 * 1000)) // 1 hour
+            maxAge: (process.env.SESSION_MAXAGE || '3600000') // 1 hour
         }
     },
     https: {
         enabled: toBoolean(process.env.HTTPS_ENABLED, false),
         cert_file: (process.env.HTTPS_CERT_FILE || 'certs/idm-mnca-cert.pem'),
         key_file: (process.env.HTTPS_KEY_FILE || 'certs/idm-mnca-key.pem'),
-        port: (process.env.HTTPS_PORT || 443)
+        port: (process.env.HTTPS_PORT || '443')
 
     },
     iotAgent: {
