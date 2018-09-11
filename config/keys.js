@@ -12,21 +12,21 @@ const keys = {
         tokenURL: (process.env.OAUTH2_TOKEN_URL || 'http://idm.mnca.com:3100/oauth2/token')
     },
     web: {
-        host: (process.env.WEB_HOST || 'idm.mnca.com'),
-        port: (process.env.WEB_PORT || '8888')
+        host: (process.env.WEB_HOST || 'idm.mnca.com'), // value must be changed in IDM accordingly 
+        port: (parseInt(process.env.WEB_PORT) || 8888) // value must be changed in IDM accordingly 
     },
     session: {
         secret: (process.env.SESSION_SECRET || 'mnca-secret-key'),
         cookie: {
             secure: toBoolean(process.env.HTTPS_ENABLED, false),
-            maxAge: (process.env.SESSION_MAXAGE || '3600000') // 1 hour
+            maxAge: (parseInt(process.env.SESSION_MAXAGE) || 3600000) // 1 hour
         }
     },
     https: {
         enabled: toBoolean(process.env.HTTPS_ENABLED, false),
         cert_file: (process.env.HTTPS_CERT_FILE || 'certs/idm-mnca-cert.pem'),
         key_file: (process.env.HTTPS_KEY_FILE || 'certs/idm-mnca-key.pem'),
-        port: (process.env.HTTPS_PORT || '443')
+        port: (parseInt(process.env.HTTPS_PORT) || 443)
 
     },
     iotAgent: {

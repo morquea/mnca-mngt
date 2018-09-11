@@ -2,9 +2,7 @@ FROM node:carbon-stretch
 
 MAINTAINER MNCA Team
 
-RUN apt update
-
-RUN apt install -y git vim
+RUN apt update && apt install -y git vim
 
 WORKDIR /opt
 
