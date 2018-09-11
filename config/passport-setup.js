@@ -18,11 +18,11 @@ passport.use(
 
             clientSecret: keys.oauth2.clientSecret,
 
-            callbackURL: '/auth/login/redirect',
+            callbackURL: keys.oauth2.callbackURL,
 
-            authorizationURL: 'http://idm.mnca.com:3100/oauth2/authorize',
+            authorizationURL: keys.oauth2.authorizationURL,
 
-            tokenURL: 'http://idm.mnca.com:3100/oauth2/token',
+            tokenURL: keys.oauth2.tokenURL,
 
             state: true
 

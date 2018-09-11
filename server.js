@@ -1,16 +1,13 @@
 let trace = require('./config/trace')
-//let routing = require('./middleware/routing')
 let express = require("express")
 //let morgan = require('morgan')
 let app = express()
-//let router = express.Router()
 let bodyParser = require("body-parser")
 let session = require('express-session')
-//let Sequelize = require('sequelize')
 //let cookieSession = require('cookie-session')
-let moment = require('./config/moment')
+//let moment = require('./config/moment')
 let MemoryStore = require('memorystore')(session)
-let rest = require('request-promise')
+//let rest = require('request-promise')
 let passport = require('./config/passport-setup')
 let indexRouter = require('./routes/index')
 let iotRouter = require('./routes/iot')
@@ -19,9 +16,10 @@ let servicesRouter = require('./routes/services')
 let devicesRouter = require('./routes/devices')
 
 //const paths = require('./config/paths')
-const options = require('./config/options')
-const attributs = require('./config/attributs')
-const schemas = require('./config/schemas')
+//const options = require('./config/options')
+//const attributs = require('./config/attributs')
+//const schemas = require('./config/schemas')
+const web = require('./config/web.js')
 
 let debug = 'mnca:server'
 
@@ -57,15 +55,6 @@ app.use(session({
 
 }))
 
-/*app.use(session({
-    secret: 'mnca secret key',
-    store: sequelizeStore,
-    resave: false,
-    saveUninitialized: true
-
-})) */
-
-
 /* app.use(cookieSession({
     name: 'session',
     keys: ['mnca secret key'],
@@ -93,4 +82,4 @@ app.use('/api/iot/devices', devicesRouter)
 trace(debug, 'init app done')
 
 //listen
-app.listen('8888')
+app.listen(web.port)
