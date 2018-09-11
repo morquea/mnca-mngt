@@ -19,7 +19,7 @@ let devicesRouter = require('./routes/devices')
 //const options = require('./config/options')
 //const attributs = require('./config/attributs')
 //const schemas = require('./config/schemas')
-const web = require('./config/web.js')
+const keys = require('./config/keys.js')
 
 let debug = 'mnca:server'
 
@@ -30,13 +30,14 @@ app.set('view engine', 'ejs')
 //app.use(morgan('combined'))
 
 app.set('etag', false)
+app.disable('x-powered-by')
 
-/*app.use(function(req, res, next) {
+app.use(function(req, res, next) {
     res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate, max-age=0')
     res.header('Expires', '-1')
     res.header('Pragma', 'no-cache')
     next()
-}) */
+})
 
 app.use('/assets', express.static('public'))
 
@@ -48,10 +49,10 @@ app.use(session({
     store: new MemoryStore({
         checkPeriod: 86400000 // prune expired entries every 24h
     }),
-    secret: 'mnca secret key',
+    secret: keys.session.secret,
     resave: true,
     saveUninitialized: true,
-    cookie: { secure: false, maxAge: 3600 * 1000 } // 1h
+    cookie: { secure: keys.session.cookie.secure, maxAge: keys.session.cookie.maxAge } // 1h
 
 }))
 
@@ -82,4 +83,4 @@ app.use('/api/iot/devices', devicesRouter)
 trace(debug, 'init app done')
 
 //listen
-app.listen(web.port)
+app.listen(keys.web.port)

@@ -1,8 +1,10 @@
+const keys = require('./keys')
+
 const options = {
 
     'iot/services': {
 
-        uri: 'http://192.168.56.104:4041/iot/services',
+        uri: keys.iotAgent.services.uri,
 
         headers: {
             'Content-Type': 'application/json',
@@ -14,7 +16,7 @@ const options = {
     },
     'iot/devices': {
 
-        uri: 'http://192.168.56.104:4041/iot/devices',
+        uri: keys.iotAgent.devices.uri,
 
         headers: {
             'Content-Type': 'application/json',
