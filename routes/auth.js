@@ -6,18 +6,17 @@ const rest = require('request-promise')
 
 const trace = require('../config/trace')
 
+const keys = require('../config/keys.js')
+
 const debug = 'mnca:passport_auth'
 
-
 router.get('/logout', (request, response) => {
-
 
     request.session.destroy(function(e) {
         request.logout()
         response.clearCookie('session', { path: '/' })
         response.redirect('/')
     })
-
 })
 
 router.get('/login', passport.authenticate('oauth2', { scope: ['profile'] }))
@@ -32,7 +31,7 @@ router.get('/login/redirect', passport.authenticate('oauth2', { failureRedirect:
 
     rest({
 
-        uri: 'http://idm.mnca.com:3100/user',
+        uri: keys.oauth2.userURL,
 
         headers: {
             'Content-Type': 'application/json'

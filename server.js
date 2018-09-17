@@ -21,7 +21,7 @@ const keys = require('./config/keys.js')
 
 let debug = 'mnca:server'
 
-trace(debug, 'idm-mnca version 1.1.5')
+trace(debug, 'idm-mnca version ' + keys.version)
 
 // moteur de template
 app.set('view engine', 'ejs')

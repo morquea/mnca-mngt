@@ -4,12 +4,15 @@ let toBoolean = (env, defaultValue) => {
 
 const keys = {
 
+    version: '1.1.6',
+
     oauth2: {
         clientID: (process.env.OAUTH2_CLIENT_ID || '43df87e8-f273-4544-9e6d-5d40fa252427'),
         clientSecret: (process.env.OAUTH2_CLIENT_SECRET || '24e3cb5d-9a25-4e41-b747-4dc7e17b6d55'),
         callbackURL: (process.env.OAUTH2_CALLBACK_URL || '/auth/login/redirect'),
         authorizationURL: (process.env.OAUTH2_AUTHORIZATION_URL || 'http://idm.mnca.com:3100/oauth2/authorize'),
-        tokenURL: (process.env.OAUTH2_TOKEN_URL || 'http://idm.mnca.com:3100/oauth2/token')
+        tokenURL: (process.env.OAUTH2_TOKEN_URL || 'http://idm.mnca.com:3100/oauth2/token'),
+        userURL: (process.env.OAUTH2_USER_URL || 'http://idm.mnca.com:3100/user')
     },
     web: {
         host: (process.env.WEB_HOST || 'idm.mnca.com'), // value must be changed in IDM accordingly 
