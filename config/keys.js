@@ -24,9 +24,11 @@ const keys = {
     },
     https: {
         enabled: toBoolean(process.env.HTTPS_ENABLED, false),
-        cert_file: (process.env.HTTPS_CERT_FILE || 'certs/idm-mnca-cert.pem'),
-        key_file: (process.env.HTTPS_KEY_FILE || 'certs/idm-mnca-key.pem'),
-        port: (parseInt(process.env.HTTPS_PORT) || 443)
+        cert_file: (process.env.HTTPS_CERT_FILE || 'certs/cert.pem'),
+        key_file: (process.env.HTTPS_KEY_FILE || 'certs/key.pem'),
+        passphrase: (process.env.HTTPS_PASSPHRASE || 'mnca'),
+        ca_certs: [],
+        port: (parseInt(process.env.HTTPS_PORT) || 8443)
 
     },
     iotAgent: {

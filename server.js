@@ -1,13 +1,15 @@
 let trace = require('./config/trace')
 let express = require("express")
 //let morgan = require('morgan')
+let fs = require('fs')
+let https = require('https')
+let http = require('http')
 let app = express()
 let bodyParser = require("body-parser")
 let session = require('express-session')
 //let cookieSession = require('cookie-session')
 //let moment = require('./config/moment')
 let MemoryStore = require('memorystore')(session)
-//let rest = require('request-promise')
 let passport = require('./config/passport-setup')
 let indexRouter = require('./routes/index')
 let iotRouter = require('./routes/iot')
@@ -15,13 +17,11 @@ let authRouter = require('./routes/auth')
 let servicesRouter = require('./routes/services')
 let devicesRouter = require('./routes/devices')
 
-//const paths = require('./config/paths')
-//const options = require('./config/options')
-//const attributs = require('./config/attributs')
-//const schemas = require('./config/schemas')
 const keys = require('./config/keys.js')
 
 let debug = 'mnca:server'
+
+trace(debug, 'idm-mnca version 1.1.5')
 
 // moteur de template
 app.set('view engine', 'ejs')
@@ -29,6 +29,7 @@ app.set('view engine', 'ejs')
 // middewares lancés avant les routes
 //app.use(morgan('combined'))
 
+// headers http
 app.set('etag', false)
 app.disable('x-powered-by')
 
@@ -68,7 +69,6 @@ app.use(passport.initialize())
 app.use(require('./middlewares/flash'))
 
 // routes
-
 // mount the routers on the app
 app.use('/', indexRouter)
 app.use('/iot', iotRouter)
@@ -76,11 +76,65 @@ app.use('/auth', authRouter)
 app.use('/api/iot/services', servicesRouter)
 app.use('/api/iot/devices', devicesRouter)
 
-
 //debug.enabled = true
 //console.log(debug)
 //console.log('debug enabled')
+
 trace(debug, 'init app done')
 
 //listen
-app.listen(keys.web.port)
+//https
+if (keys.https.enabled) {
+       
+    let https_opts = {
+        key: fs.readFileSync(keys.https.key_file),
+        cert: fs.readFileSync(keys.https.cert_file),
+        passphrase: keys.https.passphrase
+    }
+    if (keys.https.ca_certs) {
+        https_opts.ca = []
+
+        keys.https.ca_certs.forEach(ca => {
+            https_opts.ca.push(fs.readFileSync(keys.https.ca_certs[ca].toString()))    
+        })
+    }
+
+    let serverSecure = https.createServer(https_opts, app)
+    serverSecure.on('error', onError)
+    serverSecure.listen(keys.https.port, () => {
+        trace(debug, 'Listening on port ' + serverSecure.address().port)
+    })
+}
+
+// http
+let server = http.createServer(app)
+server.on('error', onError)
+server.listen(keys.web.port, () => {
+    trace(debug, 'Listening on port ' + server.address().port)    
+})
+
+function onError(error) {
+    if (error.syscall !== 'listen') {
+      throw error
+    }
+  
+    var port = error.port
+  
+    var bind = typeof port === 'string'
+      ? 'Pipe ' + port
+      : 'Port ' + port
+  
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+      case 'EACCES':
+        console.error(bind + ' requires elevated privileges');
+        process.exit(1)
+        break;
+      case 'EADDRINUSE':
+        console.error(bind + ' is already in use');
+        process.exit(1)
+        break;
+      default:
+        throw error
+    }
+  }
