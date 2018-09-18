@@ -5,7 +5,8 @@
 
     <% if (locals.userinfo) { %>
 
-    	Vous vous êtes actuellement authentifié à l'IDM avec l'utilisateur  '<i><%= userinfo.displayName %></i>'.
+        Vous vous êtes actuellement authentifié à l'IDM avec l'utilisateur  '<i><%= userinfo.username %></i>'
+        <br/><br/> (email : '<i><%= userinfo.email %></i></i>')
 
     <% } else { %>
 

@@ -4,7 +4,7 @@ let toBoolean = (env, defaultValue) => {
 
 const keys = {
 
-    version: '1.1.6',
+    version: '1.1.7',
 
     oauth2: {
         clientID: (process.env.OAUTH2_CLIENT_ID || '43df87e8-f273-4544-9e6d-5d40fa252427'),
