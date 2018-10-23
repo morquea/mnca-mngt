@@ -86,8 +86,8 @@ let schemas = {
                 "uniqueItems": true,
                 "items": {
                     "type": "object",
-                    "minProperties": 3,
-                    "maxProperties": 3,
+                    "minProperties": 2,
+                    "maxProperties": 2,
                     "properties": {
                         "name": {
                             "type": "string",
@@ -97,15 +97,10 @@ let schemas = {
                         "type": {
                             'type': "string",
                             "isNotEmpty": true,
-
-                        },
-                        "value": {
-                            "type": "string",
-                            "isNotEmpty": true,
-
+                            "enum": ["command"]
                         }
                     },
-                    "required": ["name", "type", "value"],
+                    "required": ["name", "type"],
                     "additionalProperties": false
                 }
             },
@@ -136,6 +131,18 @@ let schemas = {
                     "required": ["name", "type", "value"],
                     "additionalProperties": false
                 }
+            },
+            "endpoint": {
+                "type": "string",
+                "pattern": "^([ -~]+|)$"
+            },
+            "protocol": {
+                "type": "string",
+                "pattern": "^[ -~]+$"    
+            },
+            "transport": {
+                "type": "string",
+                "pattern": "^[ -~]+$"    
             }
         },
         "required": ["device_id", "service", "service_path", "entity_type", "entity_name"],
@@ -146,7 +153,7 @@ let schemas = {
         "properties": {
             "_id": {
                 "type": "string",
-                "pattern": "^[0-9a-f]{24}$"
+                "pattern": "^([0-9a-f]{24}|)$"
             },
             "subservice": {
                 "type": "string",
@@ -174,7 +181,7 @@ let schemas = {
             },
             "attributes": {
                 "type": "array",
-                "minItems": 1,
+               // "minItems": 1,
                 "uniqueItems": true,
                 "items": {
                     "title": "attribute",
@@ -184,18 +191,15 @@ let schemas = {
                     "properties": {
                         "object_id": {
                             "type": "string",
-                            "isNotEmpty": true,
-                            //    "default": "foo"
+                            "isNotEmpty": true
                         },
                         "name": {
                             "type": "string",
-                            "isNotEmpty": true,
-                            //    "default": "bar"
+                            "isNotEmpty": true
                         },
                         "type": {
                             "type": "string",
-                            "isNotEmpty": true,
-                            //    "default": "baz"
+                            "isNotEmpty": true
                         }
                     },
                     "required": ["object_id", "name", "type"],
@@ -208,7 +212,7 @@ let schemas = {
                 "uniqueItems": true,
                 "items": {
                     "type": "object",
-                    "minProperties": 3,
+                    "minProperties": 2,
                     "maxProperties": 3,
                     "properties": {
                         "name": {
@@ -227,7 +231,7 @@ let schemas = {
 
                         }
                     },
-                    "required": ["name", "type", "value"],
+                    "required": ["name", "type"],
                     "additionalProperties": false
                 }
             },
@@ -236,7 +240,7 @@ let schemas = {
                 "uniqueItems": true,
                 "items": {
                     "type": "object",
-                    "minProperties": 3,
+                    "minProperties": 2,
                     "maxProperties": 3,
                     "properties": {
                         "name": {
@@ -255,7 +259,7 @@ let schemas = {
 
                         }
                     },
-                    "required": ["name", "type", "value"],
+                    "required": ["name", "type"],
                     "additionalProperties": false
                 }
             },
@@ -268,27 +272,9 @@ let schemas = {
                 "uniqueItems": true,
                 "items": {
                     "type": "object",
-                    "minProperties": 3,
-                    "maxProperties": 3,
-                    "properties": {
-                        "name": {
-                            "type": "string",
-                            "isNotEmpty": true,
-
-                        },
-                        "type": {
-                            'type': "string",
-                            "isNotEmpty": true,
-
-                        },
-                        "value": {
-                            "type": "string",
-                            "isNotEmpty": true,
-
-                        }
-                    },
-                    "required": ["name", "type", "value"],
-                    "additionalProperties": false
+                    "patternProperties": {
+                        "^[ -~]+$": {"type": "string"}
+                    }
                 }
             },
             "static_attributes": {
@@ -296,7 +282,7 @@ let schemas = {
                 "uniqueItems": true,
                 "items": {
                     "type": "object",
-                    "minProperties": 3,
+                    "minProperties": 2,
                     "maxProperties": 3,
                     "properties": {
                         "name": {
@@ -315,13 +301,251 @@ let schemas = {
 
                         }
                     },
-                    "required": ["name", "type", "value"],
+                    "required": ["name", "type"],
                     "additionalProperties": false
                 }
             }
         },
-        "required": ["service", "subservice", "apikey", "resource", "entity_type", "attributes"],
+        "required": ["service", "subservice", "apikey", "resource", "entity_type"],
         "additionalProperties": false
+    },
+    "subscriptions": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string",
+                "pattern": "^([0-9a-f]{24}|)$"
+            },
+            "description": {
+                "type": "string",
+                "pattern": "^[ -~]+$"
+            },
+            "subject": {
+                "type": "object",
+                "properties": {
+                    "entities": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                    "pattern": "^[0-9a-f]{24}$"
+                                },
+                                "idPattern": {
+                                    "type": "string",
+                                    "pattern": "^[ -~]+$"
+                                },
+                                "type": {
+                                    "type": "string",
+                                    "pattern": "^[ -~]+$"
+                                },
+                                "typePattern": {
+                                    "type": "string",
+                                    "pattern": "^[ -~]+$"
+                                }
+                            },
+                            "oneOf": [
+                                {
+                                    "required": ["id"],
+                                    "not": {
+                                        "required": ["idPattern"]
+                                    }
+                                },
+                                {
+                                    "required": ["idPattern"],
+                                    "not": {
+                                        "required": ["id"]
+                                    }
+                                }
+                            ],
+                            "dependencies": {
+                                "type": {
+                                    "not": {
+                                        "required": ["typePattern"]
+                                    }
+                                },
+                                "typePattern": {
+                                    "not": {
+                                        "required": ["type"]
+                                    }
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    "condition": {
+                        "type": "object",
+                        "properties": {
+                            "attrs": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "pattern": "^[ -~]+$"
+                                }
+                            },
+                            "expression": {
+                                "type": "object",
+                                "properties": {
+                                    "q": {
+                                        "type": "string",
+                                        "pattern": "^[ -~]+$"
+                                    },
+                                    "mq": {
+                                        "type": "string",
+                                        "pattern": "^[ -~]+$"
+                                    },
+                                    "georel": {
+                                        "type": "string",
+                                        "pattern": "^[ -~]+$"
+                                    },
+                                    "geometry": {
+                                        "type": "string",
+                                        "pattern": "^[ -~]+$"
+                                    },
+                                    "coords": {
+                                        "type": "string",
+                                        "pattern": "^[ -~]+$"
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                },
+                "required": ["entities"],
+                "additionalProperties": false
+            },
+            "notification": {
+                "type": "object",
+                "properties": {
+                    "attrs": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "pattern": "^[ -~]+$"
+                        }
+                    },
+                    "exceptAttrs": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "pattern": "^[ -~]+$"
+                        }
+                    },
+                    "http": {
+                        "type": "object",
+                        "properties": {
+                            "url": {
+                                "type": "string",
+                                "format": "uri"
+                            }
+                        },
+                        "required": ["url"],
+                        "additionalProperties": false
+                    },
+                    "httpCustom": {
+                        "type": "object",
+                        "properties": {
+                            "url": {
+                                "type": "string",
+                                "format": "uri"
+                            },
+                            "headers": {
+                                "type": "object",
+                                "patternProperties": {
+                                    "^[ -~]+$": {"type": "string"}
+                                }
+                            },
+                            "qs": {
+                                "type": "object",
+                                "patternProperties": {
+                                    "^[ -~]+$": {"type": "string"}
+                                }
+                            },
+                            "method": {
+                                "type": "string",
+                                "enum": ["POST", "GET", "PUT"]
+                            },
+                            "payload": {
+                                "type": "string"
+                            }
+                        },
+                        "required": ["url"],
+                        "additionalProperties": false
+                    },
+                    "attrsFormat": {
+                        "type": "string",
+                        "enum": ["normalized", "keyvalues", "values", "legacy"]
+                    },
+                    "metadata": {
+                        "type": "array"                       
+                    },
+                    "timesSent": {
+                        "type": "integer"
+                    },
+                    "lastNotification": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "lastFailure": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "lastSuccess": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "oneOf": [
+                    {
+                        "required": ["http"],
+                        "not": {
+                            "required": ["httpCustom"]
+                        }
+                    },
+                    {
+                        "required": ["httpCustom"],
+                        "not": {
+                            "required": ["http"]
+                        }
+                    }
+                ],
+                "dependencies": {
+                    "attrs": {
+                        "not": {
+                            "required": ["exceptAttrs"]
+                        }
+                    },
+                    "exceptAttrs": {
+                        "not": {
+                            "required": ["attrs"]
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "expires": {
+                "type": "string",
+                "format": "date-time"
+            },
+            "status": {
+                "type": "string",
+                "oneOf": [
+                    {"enum": ["active", "inactive"]},
+                    {"const": "failed"},
+                    {"const": "expired"}
+                ] 
+            },
+            "throttling": {
+                "type": "integer"
+            }
+        },
+        "required": ["id", "subject", "notification", "status"],
+        "additionalProperties": false
+           
     }
 }
 

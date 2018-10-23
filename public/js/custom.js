@@ -60,14 +60,24 @@ document.addEventListener("DOMContentLoaded", function() {
                 templates: templates,
                 context: context,
                 itemName: itemName,
-
+                
                 onEditable: function(node) {
                     //console.log('oneditable')
                     //console.log(node)
+                    
                     if (node.path === null) {
                         return { field: false, value: false }
                     }
-                    //if (['_id', 'service', 'subservice', 'apikey', 'resource', '__v'].includes(node.field)) {
+                    let path = node.path.join('.')
+
+                    if (readonly.includes(path)) {
+                        return { field: false, value: false }    
+                    }
+
+                    if (node.field != '' /* && !(['', '[]', '{}'].includes(node.value + '')) */) {
+                        return { field: false, value: true }
+                    }
+                    /*
                     if (node.path.length >= 1 && readonly.includes(node.path[0])) {
                         //console.log('found field ' + node.field + ' value ' + node.value + ' path ' + node.path)
                         return { field: false, value: false }
@@ -77,15 +87,32 @@ document.addEventListener("DOMContentLoaded", function() {
                         if (node.path.length <= 3) {
                             return { field: true, value: true }
                         } else {
-                            return { field: false, value: true }
+                            //return { field: false, value: true }
+                            return { field: true, value: true }
                         }
                     }
 
-                    return { field: false, value: false }
-                },
+                    return { field: false, value: false } */
+                    return true
+                }, 
                 onError: function(er) {
                     console.log('handler error ' + er)
                 }
+            }
+            
+            if ($('#templates').length > 0) {
+                let templates = JSON.parse($('#templates').val(), null, 2)
+                options.templates = templates
+            }
+
+            if ($('#context').length > 0) {
+                let context = JSON.parse($('#context').val(), null, 2)
+                options.context = context
+            }
+
+            if ($('#itemName').length > 0) {
+                let itemName = JSON.parse($('#itemName').val(), null, 2)
+                options.itemName = itemName
             }
         }
 
@@ -97,14 +124,14 @@ document.addEventListener("DOMContentLoaded", function() {
 
         if (document.getElementById('readonly')) {
 
-            let readonly = JSON.parse(document.getElementById('readonly').value)
+            /* let readonly = JSON.parse(document.getElementById('readonly').value)
 
             // get json
             const getJSON = function() {
                 let jsonTmp = editor.get()
 
                 document.getElementById('json').value = JSON.stringify(jsonTmp, null, 2)
-            }
+            } */
 
             // listeners
             const editBtn = document.getElementById('btnEdit')
@@ -353,8 +380,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
     $('.ui.dropdown.fw_service').dropdown('setting', 'onChange', function(ev) {
 
-        //console.log('fw_service changed to ' + ev)
-        //console.log('servicekeys ' + $('#fwServiceKeys').val())
+        console.log('fw_service changed to ' + ev)
+        console.log('servicekeys ' + $('#fwServiceKeys').val())
 
         $('div.iotlist').hide()
 
@@ -364,15 +391,15 @@ document.addEventListener("DOMContentLoaded", function() {
 
             fw_servicekeys = fw_servicekeys.filter(el => el.split('|')[0] == ev)
 
-            //console.log(fw_servicekeys)
+            console.log(fw_servicekeys)
 
             $('.ui.dropdown.fw_servicepath div.item').each(function(idx) {
                 let data_value = $(this).attr('data-value')
 
-                //console.log('element ' + ev + '|' + data_value)
+                console.log('element ' + ev + '|' + data_value)
 
-                if ( /* !fw_servicekeys.includes(ev + '|' + data_value) && */ data_value != '' && data_value != '/*') {
-                    //console.log('remove data-value ' + data_value)
+                if (data_value != '/#' && data_value != '' && data_value != '/*') {
+                    console.log('remove data-value ' + data_value)
                     $(this).remove()
                 }
 
@@ -411,8 +438,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
         $('#btnNoSel').on('click', function(ev) {
 
-            $('#inpService').val('*')
-            $('#inpSubService').val('/*')
+           // $('#inpService').val('*')
+           // $('#inpSubService').val('/*')
+            let [def_service, def_servicepath] = $('#defServiceKey').val().split('|')
+            $('#inpService').val(def_service)
+            $('#inpSubService').val(def_servicepath)
 
             return true
         })
@@ -421,9 +451,10 @@ document.addEventListener("DOMContentLoaded", function() {
     if ($('#btnNoSel2').length > 0) {
 
         $('#btnNoSel2').on('click', function(ev) {
-
-            $('#inpService').val('')
-            $('#inpSubService').val('')
+            
+            let [def_service, def_servicepath] = $('#defServiceKey').val().split('|')
+            $('#inpService').val(def_service)
+            $('#inpSubService').val(def_servicepath)
 
             return true
         })

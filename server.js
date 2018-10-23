@@ -13,9 +13,11 @@ let MemoryStore = require('memorystore')(session)
 let passport = require('./config/passport-setup')
 let indexRouter = require('./routes/index')
 let iotRouter = require('./routes/iot')
+let orionRouter = require('./routes/orion')
 let authRouter = require('./routes/auth')
 let servicesRouter = require('./routes/services')
 let devicesRouter = require('./routes/devices')
+let subscriptionsRouter = require('./routes/subscriptions')
 
 const keys = require('./config/keys.js')
 
@@ -72,9 +74,11 @@ app.use(require('./middlewares/flash'))
 // mount the routers on the app
 app.use('/', indexRouter)
 app.use('/iot', iotRouter)
+app.use('/orion', orionRouter)
 app.use('/auth', authRouter)
 app.use('/api/iot/services', servicesRouter)
 app.use('/api/iot/devices', devicesRouter)
+app.use('/api/orion/subscriptions', subscriptionsRouter)
 
 //debug.enabled = true
 //console.log(debug)

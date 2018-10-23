@@ -1,5 +1,5 @@
 let express = require('express')
-
+let Pager = require('../config/pager')
 let trace = require('../config/trace')
 
 let rest = require('request-promise')
@@ -25,6 +25,9 @@ router.get('/', (request, response, next) => {
 
     let opts = options[path]
 
+    request.session.def_servicekey = opts.headers['Fiware-Service'] + '|' + opts.headers['Fiware-ServicePath']
+    response.locals.def_servicekey = request.session.def_servicekey
+
     trace(debug, 'get ' + path + ' fw_service ' + request.session.fw_service + ' fw_servicepath ' + request.session.fw_servicepath)
 
     let list = attributs[path].list
@@ -44,6 +47,8 @@ router.get('/', (request, response, next) => {
 
                 elements = resp.services
             }
+
+            trace(debug, 'services resp %o', resp)
 
             let fw_services = []
             let fw_servicepaths = []
@@ -72,8 +77,6 @@ router.get('/', (request, response, next) => {
                 }
             })
 
-            //request.session.fw_services = fw_services
-            //request.session.fw_servicepaths = fw_servicepaths
             response.locals.fw_services = fw_services
             response.locals.fw_servicepaths = fw_servicepaths
             response.locals.fw_servicekeys = JSON.stringify(fw_servicekeys)
@@ -82,7 +85,6 @@ router.get('/', (request, response, next) => {
             if (request.session.fw_service != "*") {
                 elements = elements.filter(el => request.session.fw_service == el.service)
                 //console.log('find service :' + JSON.stringify(elements))
-
             }
 
             if (request.session.fw_servicepath != "/*") {
@@ -92,76 +94,23 @@ router.get('/', (request, response, next) => {
 
             response.locals.fw_service = request.session.fw_service
             response.locals.fw_servicepath = request.session.fw_servicepath
-
             response.locals.list = list
 
-            // paagination
-            const ITEMS_PER_PAGE = 10
-            const PAGER_MODULO = 4
-            let count = elements.length
-            let offset = 0
-            //let count = 400
-            let pager = {}
-            pager.current_page = 1
+            //page courante avant
+            let curr_page = 1
 
             if (request.session.page) {
-                pager.current_page = request.session.page
+                curr_page = request.session.page
             }
 
-            pager.nb_pages = Math.floor((count + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE)
+            // pagination
+            let pager = Pager.create(curr_page, elements.length)
+            // nouvelle page courante eventuelle si out of band
+            request.session.page = pager.current_page
 
-            if (pager.nb_pages < pager.current_page) {
-                pager.current_page = pager.nb_pages
-                request.session.page = pager.current_page
-
-            }
-
-            pager.pager_modulo = PAGER_MODULO
-
-            offset = ITEMS_PER_PAGE * (pager.current_page - 1)
-
-            elements = elements.slice(offset, offset + ITEMS_PER_PAGE)
-
-            trace(debug, 'pager offset ' + offset)
-
+            //filtrage des elements de la page courante
+            elements = Pager.sliceElements(elements)
             response.locals.services = elements
-
-            // on va calculer la premiere page de la pagination courante et savoir si on a une pagination précédente  et/ou suivante
-            pager.has_previous_page = true
-            pager.has_next_page = true
-            pager.first_page = 1
-
-            // on a pas de pagination suivante et précédente
-            if (pager.nb_pages <= (pager.pager_modulo + 2)) {
-                pager.has_previous_page = false
-                pager.has_next_page = false
-                pager.first_page = 2
-
-            }
-            // on a une pagincation suivante et/ou précédente
-            else {
-                // la page courante est sur la premiere pagination
-                if (pager.current_page <= (pager.pager_modulo + 1)) {
-                    pager.has_previous_page = false
-                    pager.first_page = 2
-                }
-                // la page courante a une pagination précédente
-                else {
-                    // calcul de la premiere page de la pagination courante (contenant la page courante)
-                    pager.first_page = (Math.floor((pager.current_page - 2) / pager.pager_modulo) * pager.pager_modulo) + 2
-
-                    // cas particulier ou le calcul tombe sur la derniere page
-                    if (pager.first_page == pager.nb_pages) {
-                        pager.first_page = pager.nb_pages - pager.pager_modulo
-                    }
-
-                    // cas ou  la pagination courante est la dernière pagination
-                    if ((pager.first_page + pager.pager_modulo) >= pager.nb_pages) {
-                        pager.has_next_page = false
-                    }
-                }
-            }
-
             response.locals.pager = pager
 
             trace(debug, 'pager %o', pager)
@@ -185,12 +134,15 @@ router.post('/',
 
         let action = JSON.parse(request.body.action)
 
-        trace(debug, 'post ' + path + ' todo ' + action.todo)
+        trace(debug, 'post ' + path + ' todo ' + action.todo + ' body %o', request.body)
 
         if (action.todo == 'services') {
 
             request.session.fw_service = request.body.fw_service
             request.session.fw_servicepath = request.body.fw_servicepath
+            if (request.session.fw_service == '') {
+                request.session.fw_service = '*'
+            }
             request.session.save()
 
             response.redirect('/api/' + path)
@@ -224,9 +176,6 @@ router.post('/',
         trace(debug, action.todo + ' _id ' + action._id)
 
         let opts = options[path]
-
-        //opts.headers['Fiware-Service'] = ''
-        //opts.headers['Fiware-ServicePath'] = '/*'
 
         let attrs = attributs[path]
 

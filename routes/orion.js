@@ -6,7 +6,7 @@ let options = require('../config/options')
 
 let router = express.Router()
 
-let debug = 'mnca:iot'
+let debug = 'mnca:orion'
 
 router.get('/:level',
 
@@ -14,7 +14,7 @@ router.get('/:level',
 
         let level = request.params.level
 
-        let path = 'iot/' + level
+        let path = 'orion/' + level
 
         trace(debug, path + ' request session %o', request.session)
 
@@ -45,13 +45,10 @@ router.get('/:level',
 
             request.session.path = path
 
-            trace(debug, 'iot path %s, options %o', path, options[path])
-
             let fw_service = options[path].headers['Fiware-Service']
 
-            if (level == 'services') {
-
-                fw_service = '*'
+            if (fw_service == '') {
+                fw_service = '#'
             }
 
             let fw_servicepath = options[path].headers['Fiware-ServicePath']
@@ -61,7 +58,7 @@ router.get('/:level',
             request.session.fw_servicepath = fw_servicepath
 
             trace(debug, 'auth ok for path : %s, service: %s, subservice: %s', path, fw_service, fw_servicepath)
-            
+
             request.session.fw_servicekeys = ''
 
             request.session.save()

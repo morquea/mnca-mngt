@@ -1,7 +1,7 @@
 let express = require('express')
-
+let Pager = require('../config/pager')
 let trace = require('../config/trace')
-
+let jp = require('jsonpath')
 let rest = require('request-promise')
 
 let router = express.Router()
@@ -14,22 +14,33 @@ const editor = require('../config/editor')
 
 router.get('/', (request, response) => {
 
-    if (request.session.fw_service != '' && request.session.fw_servicepath != '') {
+    //if (request.session.fw_service != '' && request.session.fw_servicepath != '') {
+    if (request.session.fw_servicekeys !== '') {
 
         let path = 'iot/devices'
 
         response.locals.path = path
 
         response.locals.userinfo = request.session.userinfo
+        
+        let opts = {
+            uri: options[path].uri,
+            headers: {
+                'Content-Type': 'application/json',
+                'Fiware-Service': request.session.fw_service,
+                'Fiware-ServicePath': request.session.fw_servicepath
+            },
+            json: true
+        }
 
-        let opts = options[path]
-
-        opts.headers.FW_Service = request.session.fw_service
-        opts.headers.FW_ServicePath = request.session.fw_servicepath
+        //opts.headers.FW_Service = request.session.fw_service
+        //opts.headers.FW_ServicePath = request.session.fw_servicepath
 
         trace(debug, 'get ' + path + ' fw_service ' + request.session.fw_service + ' fw_servicepath ' + request.session.fw_servicepath)
 
         let list = attributs[path].list
+
+        response.locals.list = list
 
         trace(debug, 'rest devices opts %o', opts)
 
@@ -74,81 +85,31 @@ router.get('/', (request, response) => {
 
                 response.locals.fw_services = fw_services
                 response.locals.fw_servicepaths = fw_servicepaths
+                response.locals.def_servicekey = request.session.def_servicekey
                 trace(debug, 'devices fw_services %o, fw_servicepaths %o', fw_services, fw_servicepaths)
 
-                response.locals.list = list
+                //response.locals.list = list
 
                 elements = elements.filter(el => request.session.fw_service == el.service)
 
                 elements = elements.filter(el => request.session.fw_servicepath == el.service_path)
 
-                // pagination
-                const ITEMS_PER_PAGE = 10
-                const PAGER_MODULO = 4
-                let count = elements.length
-                let offset = 0
-                //let count = 400
-                let pager = {}
-                pager.current_page = 1
+                //page courante avant
+                let curr_page = 1
 
                 if (request.session.page) {
-                    pager.current_page = request.session.page
+                    curr_page = request.session.page
                 }
 
-                pager.nb_pages = Math.floor((count + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE)
+                // pagination
+                let pager = Pager.create(curr_page, elements.length)
+                // nouvelle page courante eventuelle si out of band
+                request.session.page = pager.current_page
 
-                if (pager.nb_pages < pager.current_page) {
-                    pager.current_page = pager.nb_pages
-                    request.session.page = pager.current_page
-
-                }
-
-                pager.pager_modulo = PAGER_MODULO
-
-                offset = ITEMS_PER_PAGE * (pager.current_page - 1)
-
-                elements = elements.slice(offset, offset + ITEMS_PER_PAGE)
-
-                trace(debug, 'pager offset ' + offset)
-
+                //filtrage des elements de la page courante
+                elements = Pager.sliceElements(elements)
                 response.locals.devices = elements
-
-                // on va calculer la premiere page de la pagination courante et savoir si on a une pagination précédente  et/ou suivante
-                pager.has_previous_page = true
-                pager.has_next_page = true
-                pager.first_page = 1
-
-                // on a pas de pagination suivante et précédente
-                if (pager.nb_pages <= (pager.pager_modulo + 2)) {
-                    pager.has_previous_page = false
-                    pager.has_next_page = false
-                    pager.first_page = 2
-
-                }
-                // on a une pagincation suivante et/ou précédente
-                else {
-                    // la page courante est sur la premiere pagination
-                    if (pager.current_page <= (pager.pager_modulo + 1)) {
-                        pager.has_previous_page = false
-                        pager.first_page = 2
-                    }
-                    // la page courante a une pagination précédente
-                    else {
-                        // calcul de la premiere page de la pagination courante (contenant la page courante)
-                        pager.first_page = (Math.floor((pager.current_page - 2) / pager.pager_modulo) * pager.pager_modulo) + 2
-
-                        // cas particulier ou le calcul tombe sur la derniere page
-                        if (pager.first_page == pager.nb_pages) {
-                            pager.first_page = pager.nb_pages - pager.pager_modulo
-                        }
-
-                        // cas ou  la pagination courante est la dernière pagination
-                        if ((pager.first_page + pager.pager_modulo) >= pager.nb_pages) {
-                            pager.has_next_page = false
-                        }
-                    }
-                }
-
+                
                 response.locals.pager = pager
 
                 trace(debug, 'pager %o', pager)
@@ -170,12 +131,13 @@ router.get('/', (request, response) => {
 
         let opts = options[path]
 
-        //opts.headers['Fiware-Service'] = ""
-        //opts.headers['Fiware-ServicePath'] = "/*"
-
         trace(debug, 'get ' + path + ' fw_service ' + request.session.fw_service + ' fw_servicepath ' + request.session.fw_servicepath)
 
         let list = attributs[path].list
+
+        response.locals.list = list
+
+        response.locals.devices = []
 
         rest(opts)
             .then((resp) => {
@@ -220,8 +182,6 @@ router.get('/', (request, response) => {
                     }
                 })
 
-                //request.session.fw_services = fw_services
-                //request.session.fw_servicepaths = fw_servicepaths
                 response.locals.fw_services = fw_services
                 response.locals.fw_servicepaths = fw_servicepaths
                 response.locals.fw_servicekeys = JSON.stringify(fw_servicekeys)
@@ -229,6 +189,9 @@ router.get('/', (request, response) => {
 
                 response.locals.fw_service = request.session.fw_service
                 response.locals.fw_servicepath = request.session.fw_servicepath
+
+                request.session.def_servicekey = request.session.fw_service + '|' + request.session.fw_servicepath
+                response.locals.def_servicekey = request.session.def_servicekey
 
                 response.locals.pager = false
 
@@ -258,6 +221,10 @@ router.post('/',
 
             request.session.fw_service = request.body.fw_service
             request.session.fw_servicepath = request.body.fw_servicepath
+
+            if (request.session.fw_service == '' && request.session.fw_servicepath == '') {
+                request.session.fw_servicekeys = ''
+            }
             request.session.save()
 
             response.redirect('/api/' + path)
@@ -407,7 +374,7 @@ router.post('/update',
 
         let diffsrc = {}
         let difftgt = {}
-
+        /*
         let good = readonly.every((attr) => {
             if (jsonSource[attr] != jsonCible[attr]) {
                 diffsrc[attr] = jsonSource[attr]
@@ -415,6 +382,15 @@ router.post('/update',
 
             }
             return jsonSource[attr] == jsonCible[attr]
+        }) */
+
+        let good = readonly.every((attr) => {
+            if (JSON.stringify(jp.query(jsonSource, '$.' + attr)) != JSON.stringify(jp.query(jsonCible, '$.' + attr))) {
+                diffsrc[attr] = jp.query(jsonSource, '$.' + attr).stringify()
+                difftgt[attr] = jpquery(jsonCible, '$.' + attr).stringify()
+
+            }
+            return JSON.stringify(jp.query(jsonSource, '$.' + attr)) == JSON.stringify(jp.query(jsonCible, '$.' + attr))
         })
 
         if (!good) {
@@ -439,9 +415,23 @@ router.post('/update',
 
             trace(debug, 'preparing put backend ' + uri + ' servicekey %o', servicekey)
 
-            readonly.every(attr => delete jsonCible[attr])
+            //readonly.every(attr => delete jsonCible[attr])
+            
+            readonly.forEach(attr => {
+                let paths = jp.paths(jsonCible, '$.' + attr)
 
-            //console.log('json to send ' + JSON.stringify(jsonUpdate, null, 2))
+                paths.forEach(path => {
+                    let elt = jsonCible
+                    let att = path.pop()
+
+                    for (let i = 1; i < path.length; i++) {
+                        elt = elt[path[i]]
+                    }
+                    delete elt[att] 
+                })
+            }) 
+
+            //console.log('json to send ' + JSON.stringify(jsonCible, null, 2))
 
             let opts = {
                 'method': 'PUT',

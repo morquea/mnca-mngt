@@ -25,7 +25,7 @@
  *
  * @author  Jos de Jong, <wjosdejong@gmail.com>
  * @version 5.24.3
- * @date    2018-09-18
+ * @date    2018-10-23
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -7749,21 +7749,53 @@ return /******/ (function(modules) { // webpackBootstrap
 	    // adjust the link to the parent
 	    node.setParent(this);
 	    node.fieldEditable = (this.type == 'object');
+	    //console.log('Node.appendChild begin parent field ' + this.field) // AME
+	    //console.log(this); AME
+	    //console.log(node); AME
 
 	    if (this.type == 'array') {
 	      node.index = this.childs.length;
-	      var itemName = this.editor.options ? this.editor.options.itemName: undefined;
-	      var children = (itemName) ? itemName.children : undefined;
-	      var field = (children && children[this.field]) ? children[this.field] : undefined;
-		    if (field) {
-			    node.setField(field);
-		    }
 	    }
 
-	    if (this.type === 'object' && node.field == undefined) {
+	    if (this.type == 'object' && node.field == undefined) {
 	      // initialize field value if needed
+	      //console.log('Node.appendChild object no field') // AME
 	      node.setField('');
 	    }
+	    // AME BEG
+	    // set field name for array item
+	    
+	    var itemName = this.editor.options ? this.editor.options.itemName: undefined;
+	    var children = (itemName) ? itemName.children : undefined;
+	    var field = (children && children[this.field]) ? children[this.field] : undefined;
+	    if (field) {
+	      //console.log('Node.appendChild set node field ' + field)
+	      node.setField(field);
+	    } 
+
+	    // Remove append submenu item if already exists
+	    var templates = this.editor.options ? this.editor.options.templates : undefined;
+	    if (templates && this.type != 'array') {
+	      var childs = this.childs;
+	      var parentField = this.field;
+	      var itemKey = parentField + '.' + node.field;
+	      templates.forEach(function(template) {
+	        if (template.field == node.field) {
+	          //console.log('  found template field ' + node.field  + ' text ' + template.text)
+	          var texts = template.text.split('.');
+	          if (texts.length == 1 || (texts.length == 2 && texts[0] == parentField)) {
+	            childs.forEach(function(child) {
+	              if (child.contextMenuActions && child.contextMenuActions.includes(template.text) && child.contextMenuItem && child.contextMenuItem == itemKey) {
+	                //console.log('    remove child field ' + child.field + ' contextMenuActions ' + child.contextMenuActions.join(',') )
+	                child.contextMenuActions.splice(child.contextMenuActions.indexOf(template.text), 1)
+	              }
+	            })
+	          }
+	        }
+	      })
+	    }
+	    // AME END
+	    
 	    this.childs.push(node);
 
 	    if (this.expanded && visible !== false) {
@@ -7839,10 +7871,55 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (this._hasChilds()) {
 	    this.visibleChilds++;
 
+	    //console.log('Node.insertBefore begin parent field ' + this.field) // AME
+	    //console.log(this); //AME
+	    //console.log(node); //AME
+
+	    if (this.type == 'array') {
+	      node.index = this.childs.length;
+	    }
+
+	    //console.log('Node.insertBefore begin parent field ' + this.field + 'node field ' + node.field) // AME
 	    // initialize field value if needed
 	    if (this.type === 'object' && node.field == undefined) {
 	      node.setField('');
 	    }
+	 
+	    // AME BEG
+	    // set field name for array item
+	   
+	    var itemName = this.editor.options ? this.editor.options.itemName: undefined;
+	    var children = (itemName) ? itemName.children : undefined;
+	    var field = (children && children[this.field]) ? children[this.field] : undefined;
+	    if (field) {
+	      //console.log('Node.insertBefore set node field ' + field)
+	      node.setField(field);
+	    } 
+
+	    // Remove append submeni item if already exists
+	    var templates = this.editor.options ? this.editor.options.templates : undefined;
+	    if (templates && this.type != 'array') {
+	      var childs = this.childs;
+	      var parentField = this.field;
+	      var itemKey = parentField + '.' + node.field;
+	      templates.forEach(function(template) {
+	        if (template.field == node.field) {
+	          //console.log('  found template field ' + node.field  + ' text ' + template.text)
+	          var texts = template.text.split('.');
+	          if (texts.length == 1 || (texts.length == 2 && texts[0] == parentField)) {
+	            childs.forEach(function(child) {
+	              //console.log('    child field ' + child.field + ' contextMenuActions ' + child.contextMenuActions + ' contextMenuItem ' + child.contextMenuItem)
+	              //if (child.contextMenuActions && child.contextMenuActions.includes(template.text)) {
+	              if (child.contextMenuActions && child.contextMenuActions.includes(template.text) && child.contextMenuItem && child.contextMenuItem != itemKey) {
+	                //console.log('    remove child field ' + child.field + ' contextMenuActions ' + child.contextMenuActions.join(',') )
+	                child.contextMenuActions.splice(child.contextMenuActions.indexOf(template.text), 1)
+	              }
+	            })
+	          }
+	        }
+	      })
+	    }
+	    // AME END
 
 	    if (beforeNode === this.append) {
 	      // append to the child nodes
@@ -7850,6 +7927,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      // adjust the link to the parent
 	      node.setParent(this);
 	      node.fieldEditable = (this.type == 'object');
+	      
 	      this.childs.push(node);
 	    }
 	    else {
@@ -7891,6 +7969,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	Node.prototype.insertAfter = function(node, afterNode) {
 	  if (this._hasChilds()) {
+	    //console.log('Node.insertAfter begin parent field ' + this.field + 'node field ' + node.field) // AME
 	    var index = this.childs.indexOf(afterNode);
 	    var beforeNode = this.childs[index + 1];
 	    if (beforeNode) {
@@ -8147,12 +8226,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	Node.prototype.removeChild = function(node, updateDom) {
 	  if (this.childs) {
 	    var index = this.childs.indexOf(node);
-
+	    // AME BEG
+	    //trace('Node.removeChild begin')
+	    //console.log('Node.removeChild begin parent.field ' + this.field + ' node index ' + index)
+	    //console.log(this)
+	    //console.log(node)
+	    // AME END
 	    if (index !== -1) {
 	      if (index < this.visibleChilds && this.expanded) {
 	        this.visibleChilds--;
 	      }
-
+	      //console.log(' remove node field ' + node.field)
 	      node.hide();
 
 	      // delete old search results
@@ -8161,6 +8245,29 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      var removedNode = this.childs.splice(index, 1)[0];
 	      removedNode.parent = null;
+
+	      // AME BEG
+	      // Add append submenu item if not exists
+	      var templates = this.editor.options ? this.editor.options.templates : undefined;
+	      if (templates && node.field) {
+	        var childs = this.childs;
+	        var parentField = this.field;
+	        templates.forEach(function(template) {
+	          if (template.field == node.field) {
+	            //console.log('  found template field ' + node.field  + ' text ' + template.text)
+	            var texts = template.text.split('.');
+	            if (texts.length == 1 || (texts.length == 2 && text[0] == parentField)) {
+	              childs.forEach(function(child) {
+	                if (child.contextMenuActions && !child.contextMenuActions.includes(template.text)) {
+	                  //console.log('    add child field ' + child.field + ' contextMenuActions ' + child.contextMenuActions.join(',') )
+	                  child.contextMenuActions.push(template.text)
+	                }
+	              })
+	            }
+	          }
+	        })
+	      }
+	      // AME END
 
 	      if (updateDom !== false) {
 	        this.updateDom({'updateIndexes': true});
@@ -8512,8 +8619,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        //Create the default empty option
 	        this.dom.select.option = document.createElement('option');
-	        this.dom.select.option.value = '';
-	        this.dom.select.option.innerHTML = '--';
+	        //this.dom.select.option.value = ''; AME
+	        this.dom.select.option.value = this.dom.tdValue.innerHTML; // AME
+	        this.dom.select.option.innerHTML = '-- no value --'; // AME
 	        this.dom.select.appendChild(this.dom.select.option);
 
 	        //Iterate all enum values and add them as options
@@ -8544,6 +8652,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.dom.tdValue.style.visibility = 'hidden';
 	        this.dom.tdValue.innerHTML = '';
 	      } else {
+	        // set tdValue not editable
+	        var valueFieldHTML = this.dom.tdValue.innerHTML; // AME
+	        this.dom.tdValue.innerHTML = valueFieldHTML.replace('contenteditable="true"', 'contenteditable="false"'); // AME
 	        delete this.valueFieldHTML;
 	      }
 	    }
@@ -8759,12 +8870,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	Node.prototype.getDom = function() {
 	  var dom = this.dom;
+	  //console.log('Node.getDom begin'); // AME
 	  if (dom.tr) {
+	    this._updateEditability();
+	    this.updateDom();  
+
 	    return dom.tr;
 	  }
 
 	  this._updateEditability();
-
+	  
+	  //console.log(this); // AME
 	  // create row
 	  dom.tr = document.createElement('tr');
 	  dom.tr.node = this;
@@ -8784,40 +8900,72 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    dom.tr.appendChild(tdDrag);
 
+	    // AME BEG
 	    //Get the context menu options
 	    var contextOptions = this.editor.options ? this.editor.options.context : undefined;
 	    //Get the items with a defined context menu
 	    var menuItems = (contextOptions) ? contextOptions.items : undefined;
-	    //Get the items of which the children have a defined context menu
-	    var menuChildren = (contextOptions) ? contextOptions.children : undefined;
-	    //Check if there is any defined context for the current node
-	    var itemWithContextMenu = menuItems && menuItems[this.field];
-	    //Check if there is any defined context for the parent of the current node
-	    var childWithContextMenu = menuChildren && this.parent && menuChildren[this.parent.field];
-	    //Set a flag indicating that the current node has a context menu that must be displayed
-	    this.displayContextMenu = itemWithContextMenu || childWithContextMenu;
-	    //console.log('context of node');
-	    var tdisplayContextMenu = this.displayContextMenu;
-	    var tfield = this.field;
-	    var tparentfield = this.parent && this.parent.field;
+	    if (menuItems && this.parent) {
+	      //console.log('  call menuItems')
+	      //console.log(menuItems)
+	      //console.log(contextMenu(menuItems, this.parent.field, this.field))
+
+	    }
+	    var itemWithContextMenu = this.parent && menuItems && contextMenu(menuItems, this.parent.field, this.field);
+
+	    //console.log('itemWithContextMenu of ' + this.field)
+	    //console.log(itemWithContextMenu)
+	    // Remove item from append submenu if already exist
+	    var templates = this.editor.options ? this.editor.options.templates : undefined;
+	    if (templates && this.parent && this.parent.childs && itemWithContextMenu  && this.parent.type != 'array') {
+	      var childs = this.parent.childs;
+	      //console.log('childs of ' + this.field)
+	      //console.log(childs)
+	      var fields = [];
+	      childs.forEach(function(child) {
+	        fields.push(child.field);
+	      });
+	      var parentField = this.parent.field;
+	      var itemKey = parentField + '.' + this.field;
+	      //console.log('fields')
+	      //console.log(fields)
+	      templates.forEach(function(template) {
+	        //console.log('template text ' + template.text + ' field ' + template.field)
+	        if (itemWithContextMenu.actions.includes(template.text) && fields.includes(template.field) && itemWithContextMenu.item == itemKey) {
+	          itemWithContextMenu.actions.splice(itemWithContextMenu.actions.indexOf(template.text), 1);
+	          //console.log('remove text ' + template.text)
+	          //console.log(itemWithContextMenu)
+	        }
+	      });
+	    }
+	    // AME END
 
 	    // create context menu
 	    var tdMenu = document.createElement('td');
 	    // Attach the context menu in the DOM
-	    if (this.displayContextMenu) {
+	    // AME BEG
+	    if (itemWithContextMenu || !contextOptions) {
 	      //Only the permitted menu actions will be displayed in the context menu
-	      this.contextMenuActions = (itemWithContextMenu && menuItems) ?
-	      menuItems[this.field] : (childWithContextMenu && menuChildren) ? menuChildren[this.parent.field] : [];
+	      if (contextOptions) {
+	        this.contextMenuActions = itemWithContextMenu ? itemWithContextMenu.actions : [];
+	        this.contextMenuItem = itemWithContextMenu ? itemWithContextMenu.item : '';
+	      }
+	      //console.log('Node.getDom add contextmenu button')
+	      // AME END
 	      var menu = document.createElement('button');
+	      menu.type = 'button'; // AME
 	      dom.menu = menu;
 	      menu.className = 'jsoneditor-button jsoneditor-contextmenu';
 	      menu.title = 'Click to open the actions menu (Ctrl+M)';
 	      tdMenu.appendChild(dom.menu);
+	    // AME BEG
 	    } else {
 	      //Allow special theming for columns without context menu
 	      //(e.g. reduce the width of the column)
 	      tdMenu.className = 'jsoneditor-no-contextmenu';
+	      //console.log('Node.getDom no-contextmenu')
 	    }
+	    // AME END
 	    dom.tr.appendChild(tdMenu);
 	  }
 
@@ -10932,6 +11080,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	Node.prototype.addTemplates = function (menu, append, menuActions) {
 	    var node = this;
+	    //console.log('Node.addTemplates begin')
 	    var templates = node.editor.options.templates;
 	    if (templates == null) return;
 	    if (templates.length) {
@@ -10946,14 +11095,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var insertData = function (name, data) {
 	        node._onInsertBefore(name, data);
 	    };
+
 	    templates.forEach(function (template) {
 	      if (!menuActions || menuActions.indexOf(template.text) >= 0) {
+	        //console.log('  push ' + template.text)
 	        menu.push({
 	            text: template.text,
 	            className: (template.className || 'jsoneditor-type-object'),
 	            title: template.title,
 	            click: (append ? appendData.bind(this, template.field, template.value) : insertData.bind(this, template.field, template.value))
 	        });
+	      } else {
+	        //console.log('  no push ' + template.text) // AME
 	      }
 	    });
 	};
@@ -10969,14 +11122,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var node = this;
 	  var titles = Node.TYPE_TITLES;
 	  var items = [];
-
+	  //console.log('Node.showContextMenu begin') // AME
+	  //console.log(node) // AME
 	  //Get the permitted context menu actions of the node
-	  var menuActions = this.contextMenuActions ? this.contextMenuActions : [];
+	  var menuActions = this.contextMenuActions ? this.contextMenuActions : undefined;
+	  var menuItem = this.contextMenuItem ? this.contextMenuItem : undefined;
+	  //console.log('  menuActions')
+	  //console.log(menuActions)
+	  //console.log('  menuItem')
+	  //console.log(menuItem)
 	  //Build the submenu once and reuse it where needed
 	  var typeSubMenu = [];
 	  var appendSubMenu = [];
 	  var insertSubMenu = [];
 	  if(!menuActions || menuActions.indexOf('Auto') >= 0){
+	    //console.log('  push Auto')
 	    typeSubMenu.push({
 	      text: translate('auto'),
 	      className: 'jsoneditor-type-auto' +
@@ -11002,9 +11162,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	          node._onInsertBefore('', '', 'auto');
 	      }
 	    });
+	  } else {
+	    //console.log('  no push Auto')
 	  }
 	  
 	  if(!menuActions || menuActions.indexOf('Array') >= 0){
+	    //console.log('  push Array')
 	    typeSubMenu.push({
 	      text: translate('array'),
 	      className: 'jsoneditor-type-array' +
@@ -11030,9 +11193,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        node._onInsertBefore('', '', 'array');
 	      }
 	    });
+	  } else {
+	    //console.log('  no push Array')
 	  }
 
 	  if(!menuActions || menuActions.indexOf('Object') >= 0){
+	    //console.log('  push Object')
 	    typeSubMenu.push({
 	      text: translate('object'),
 	      className: 'jsoneditor-type-object' +
@@ -11058,9 +11224,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        node._onInsertBefore('', '', 'object');
 	      }
 	    });
+	  } else {
+	    //console.log('  no push Object')
 	  }
 
 	  if(!menuActions || menuActions.indexOf('String') >= 0){
+	    //console.log('  push String')
 	    typeSubMenu.push({
 	      text: translate('string'),
 	      className: 'jsoneditor-type-string' +
@@ -11086,18 +11255,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	        node._onInsertBefore('', '', 'string');
 	      }
 	    });
+	  } else {
+	    //console.log('  no push String')
 	  }
 
 	  if (this.editable.value && (!menuActions || menuActions.indexOf('Type') >= 0)) {
+	    //console.log('  push item Type')
 	    items.push({
 	      text: translate('type'),
 	      title: translate('typeTitle'),
 	      className: 'jsoneditor-type-' + this.type,
 	      submenu: typeSubMenu
 	    });
+	  } else {
+	    //console.log('  no push item Type')
 	  }
 
 	  if (this._hasChilds() && (!menuActions || menuActions.indexOf('Sort') >= 0)) {
+	    //console.log('  push item Sort')
 	    items.push({
 	      text: translate('sort'),
 	      title: translate('sortTitle', {type: this.type}),
@@ -11107,9 +11282,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        showSortModal(node, anchor)
 	      }
 	    });
+	  } else {
+	    //console.log('  no push item Sort')
 	  }
 
 	  if (this._hasChilds() && (!menuActions || menuActions.indexOf('Transform') >= 0) ) {
+	    //console.log('  push item Transform')
 	    items.push({
 	      text: translate('transform'),
 	      title: translate('transformTitle', {type: this.type}),
@@ -11119,10 +11297,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        showTransformModal(node, anchor)
 	      }
 	    });
+	  } else {
+	    //console.log('  no push item Transform')
 	  }
 
 	  if (this.parent && this.parent._hasChilds()) {
-	    if (items.length) {
+	    if (items.length > 0) {
 	      // create a separator
 	      items.push({
 	        'type': 'separator'
@@ -11131,8 +11311,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    // create append button (for last child node only)
 	    var childs = node.parent.childs;
-	    if (node == childs[childs.length - 1] && (!menuActions || menuActions.indexOf('Append') >= 0)) {
-	        
+	    if (node == childs[childs.length - 1] && 
+	      (!menuActions || (menuActions.indexOf('Append') >= 0 && menuActions[menuActions.length - 1] != ''))) {
+	        //console.log('  push item Append')
 	        node.addTemplates(appendSubMenu, true, menuActions);
 	        items.push({
 	            text: translate('appendText'),
@@ -11144,22 +11325,30 @@ return /******/ (function(modules) { // webpackBootstrap
 	            },
 	            submenu: appendSubMenu
 	        });
+	    } else {
+	      //console.log('  no push item Append')
 	    }
 
-	    node.addTemplates(insertSubMenu, false, menuActions);
-	    items.push({
-	      text: translate('insert'),
-	      title: translate('insertTitle'),
-	      submenuTitle: translate('insertSub'),
-	      className: 'jsoneditor-insert',
-	      click: function () {
-	        node._onInsertBefore('', '', 'auto');
-	      },
-	      submenu: insertSubMenu
-	    });
+	    if (!menuActions || (menuActions.indexOf('Insert') >= 0 && menuActions[menuActions.length - 1] != '')) {
+	      //console.log('  push item Insert')
+	      node.addTemplates(insertSubMenu, false, menuActions);
+	      items.push({
+	        text: translate('insert'),
+	        title: translate('insertTitle'),
+	        submenuTitle: translate('insertSub'),
+	        className: 'jsoneditor-insert',
+	        click: function () {
+	          node._onInsertBefore('', '', 'auto');
+	        },
+	        submenu: insertSubMenu
+	      });
+	    } else {
+	      //console.log('  no push item Insert')
+	    }
 
-	    if (this.editable.field) {
-	      if (!menuActions || menuActions.indexOf('Duplicate') >= 0) {
+	    if (this.editable.field || this.editable.value /* AME */) {
+	      if (!menuActions || (menuActions.indexOf('Duplicate') >= 0 && menuActions[menuActions.length - 1] != '')) {
+	        //console.log('  push item Duplicate')
 	        // create duplicate button
 	        items.push({
 	          text: translate('duplicateText'),
@@ -11169,10 +11358,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	            Node.onDuplicate(node);
 	          }
 	        });
+	      } else {
+	        //console.log('  no push item Duplicate')
 	      }
 
 	      if (!menuActions || menuActions.indexOf('Remove') >= 0) {
 	        // create remove button
+	        //console.log('  push item Remove')
 	        items.push({
 	          text: translate('removeText'),
 	          title: translate('removeField'),
@@ -11181,8 +11373,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            Node.onRemove(node);
 	          }
 	        });
+	      } else {
+	        //console.log('  no push item Remove')
 	      }
 	    }
+	  } else {
+	    //console.log('  !parent !hasChild')
 	  }
 
 	  var menu = new ContextMenu(items, {close: onClose});
@@ -11334,6 +11530,64 @@ return /******/ (function(modules) { // webpackBootstrap
 	// helper function to get the field of a node
 	function getField (node) {
 	  return node.getField();
+	}
+
+	function trace(msg) { // AME mettre en commentaire  'use strict'
+	  //console.log(msg)
+	  //return
+	  var orig = Error.prepareStackTrace;
+	  Error.prepareStackTrace = function(_, stack) {
+	      return stack;
+	  };
+	  var err = new Error();
+	  Error.captureStackTrace(err, arguments.callee);
+	  var stack = err.stack;
+	  Error.prepareStackTrace = orig;
+	 
+	  for (var i = 0; i < stack.length; i++) {
+	    var fil = stack[i].getFileName();
+	    var fct = stack[i].getFunctionName();
+	    var lin = stack[i].getLineNumber();
+
+	    var trc = 'file ' + fil + ' function ' + fct + ' line ' + lin + ': ' + msg;
+
+	    console.log(trc);
+	  }
+
+	}
+
+	function contextMenu (menus, parentField, field)  {
+	  var foundKey = false;
+
+	  if (menus[parentField + '.' + field]) {
+	    //console.log('  contextMenu found string field ' + parentField + '.' + field);
+	    foundKey = parentField + '.' + field;
+	  } else {
+	    Object.keys(menus).some(function(key) {
+	      //console.log('  contextMenu regex field ' + parentField + '.' + field + ' key ' + key );
+	      if (key.indexOf(parentField + './') == 0 && key.slice(-1) == '/') {
+	        //console.log('  contextMenu found regex field ' + parentField + '.' + field + ' key ' + key );
+	        var regex = new RegExp(key.substring(key.indexOf('/') + 1, key.lastIndexOf('/') - 1));
+	        if (regex.test(field)) {
+	          //console.log('  contextMenu test regex field ' + parentField + '.' + field + ' key ' + key );
+	          foundKey = key;
+	          return true;
+	        } else {
+	          return false;
+	        }
+	      }
+	    }) 
+	  }
+	  
+	  if (foundKey) {
+	    //console.log('  contextMenu return regex field ' + parentField + '.' + field + ' key ' + foundKey + ' ctx ' +  menus[foundKey].slice(0) );  
+	    return {
+	      item: foundKey,
+	      actions: menus[foundKey].slice(0)
+	    };
+	  } else {
+	    return false;
+	  }
 	}
 
 	// TODO: find a nicer solution to resolve this circular dependency between Node and AppendNode
@@ -13105,20 +13359,35 @@ return /******/ (function(modules) { // webpackBootstrap
 	  AppendNode.prototype.getDom = function () {
 	    // TODO: implement a new solution for the append node
 	    var dom = this.dom;
-
+	    //console.log('AppendNode.getDom begin') // AME
 	    if (dom.tr) {
+	      this._updateEditability();
+	      this.updateDom();  
+
 	      return dom.tr;
 	    }
 
 	    this._updateEditability();
-
+	    
 	    // a row for the append button
 	    var trAppend = document.createElement('tr');
 	    trAppend.className = 'jsoneditor-append';
 	    trAppend.node = this;
 	    dom.tr = trAppend;
 
+	    // console.log('appendnode.getDom begin parent.field ' + (this.parent.field ? this.parent.field : 'undefined') + ' node.field ' + (this.field ? this.field: 'undefined')) // AME
 	    // TODO: consistent naming
+	    // AME BEG
+	    // Retrieve field name for array item to append
+	   
+	    var field = this.field;
+	    if (this.parent && this.parent.type == 'array' && !field) {
+	      var itemName = this.editor.options ? this.editor.options.itemName: undefined;
+	      var children = (itemName) ? itemName.children : undefined;
+	      field = (children && children[this.parent.field]) ? children[this.parent.field] : field;
+	      //console.log('  field set ' + field)
+	    }
+	    // AME END
 
 	    if (this.editor.options.mode === 'tree') {
 	      // a cell for the dragarea column
@@ -13127,36 +13396,30 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var contextOptions = this.editor.options ? this.editor.options.context : undefined;
 	      //Get the items with a defined context menu
 	      var menuItems = (contextOptions) ? contextOptions.items : undefined;
+
 	      //Get the items of which the children have a defined context menu
-	      var menuChildren = (contextOptions) ? contextOptions.children : undefined;
-	      //Check if there is any defined context for the current node
-	      var itemWithContextMenu = menuItems && menuItems[this.field];
-	      //Check if there is any defined context for the parent of the current node
-	      var childWithContextMenu = menuChildren && this.parent && menuChildren[this.parent.field];
-	      //console.log('context of empty node');
-	      //Set a flag indicating that the current node has a context menu that must be displayed
-	      this.displayContextMenu = itemWithContextMenu || childWithContextMenu;
-	      var tdisplayContextMenu = this.displayContextMenu;
-	      var tfield = this.field;
-	      var tparentfield = this.parent && this.parent.field;
+	      var itemWithContextMenu = menuItems && this.parent && contextMenu(menuItems, this.parent.field , field); 
+	    
+	      //console.log('  context of appendnode itemWithContextMenu'); //  childWithContextMenu');
+	      //console.log(itemWithContextMenu);
+
 	      // create context menu
 	      var tdMenu = document.createElement('td');
 	      dom.tdMenu = tdMenu;
 	      //Attach the context menu in the DOM
-	      if(this.displayContextMenu) {
-		      //Only the permitted menu actions will be displayed in the context menu
-		      this.contextMenuActions = (itemWithContextMenu && menuItems) ?
-	        menuItems[this.field] : (childWithContextMenu && menuChildren) ? menuChildren[this.parent.field] : [];
-	        var menu = document.createElement('button');
-	        menu.className = 'jsoneditor-button jsoneditor-contextmenu';
-	        menu.title = 'Click to open the actions menu (Ctrl+M)';
-	        dom.menu = menu;
-	        tdMenu.appendChild(dom.menu);
-	      } else {
-	        //Allow special theming for columns without context menu
-	        //(e.g. reduce the width of the column)
-	        tdMenu.className = 'jsoneditor-no-contextmenu';
-		    }
+	 
+	      if (contextOptions /* AME */) {
+	        this.contextMenuActions = itemWithContextMenu ? itemWithContextMenu.actions : [];
+	        this.contextMenuItem = itemWithContextMenu ? itemWithContextMenu.item : '';
+	        //console.log('  add this.contextMenuActions')
+	      }
+	      var menu = document.createElement('button');
+	      menu.type = 'button'; /* AME */
+	      menu.className = 'jsoneditor-button jsoneditor-contextmenu';
+	      menu.title = 'Click to open the actions menu (Ctrl+M)';
+	      dom.menu = menu;
+	      tdMenu.appendChild(dom.menu);
+	    
 	    }
 
 	    // a cell for the contents (showing text 'empty')
@@ -13249,14 +13512,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	   */
 	  AppendNode.prototype.showContextMenu = function (anchor, onClose) {
 	    var node = this;
+	    //console.log('AppendNode.showContextMenu begin') // AME
 	    var titles = Node.TYPE_TITLES;
-	    
+	    //console.log(node) // AME
 	    //Get the permitted context menu actions of the node
-	    var menuActions = this.contextMenuActions ? this.contextMenuActions : [];
+	    var menuActions = this.contextMenuActions ? this.contextMenuActions : undefined;
+	    var menuItem = this.contextMenuItem ? this.contextMenuItem: undefined;
 	    //Build the submenu
 	    var appendSubMenu = [];
 	    
 	    if(!menuActions || menuActions.indexOf('Auto') >= 0){
+	      //console.log('  push Auto')
 	      appendSubMenu.push({
 	        text: translate('auto'),
 	        className: 'jsoneditor-type-auto',
@@ -13265,9 +13531,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	          node._onAppend('', '', 'auto');
 	        }
 	      });
+	    } else {
+	      //console.log('  no push Auto')  
 	    }
 
 	    if(!menuActions || menuActions.indexOf('Array') >= 0){
+	      //console.log('  push Array')
 	      appendSubMenu.push({
 	        text: translate('array'),
 	        className: 'jsoneditor-type-array',
@@ -13276,8 +13545,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	          node._onAppend('', '', 'array');
 	        }
 	      });
-	    } 
+	    } else {
+	      //console.log('  no push Array')
+	    }
 	    if(!menuActions || menuActions.indexOf('Object') >= 0){
+	      //console.log('  push Object')
 	      appendSubMenu.push({
 	        text: translate('object'),
 	        className: 'jsoneditor-type-object',
@@ -13286,8 +13558,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	          node._onAppend('', '', 'object');
 	        }
 	      });
+	    } else {
+	      //console.log('  no push Object')
 	    }
 	    if(!menuActions || menuActions.indexOf('String') >= 0){
+	      //console.log('  push String')
 	      appendSubMenu.push({
 	        text: translate('string'),
 	        className: 'jsoneditor-type-string',
@@ -13296,27 +13571,51 @@ return /******/ (function(modules) { // webpackBootstrap
 	          node._onAppend('', '', 'string');
 	        }
 	     });
+	    } else {
+	      //console.log('  no push String')
 	    }
 
 	    node.addTemplates(appendSubMenu, true, menuActions);
 		    
 	    var items = [];
-	    if (!menuActions || menuActions.indexOf('Append') >= 0) {
+	    if (!menuActions || (menuActions.indexOf('Append') >= 0 && menuActions[menuActions.length - 1] != '')) {
+	      //console.log('  push item Append')
 	      items.push({
 	        'text': translate('appendText'),
 	        'title': translate('appendTitleAuto'),
 	        'submenuTitle': translate('appendSubmenuTitle'),
-	        'className': 'jsoneditor-insert',
+	        'className': 'jsoneditor-append',
 	        'click': function () {
 	            node._onAppend('', '', 'auto');
 	        },
 	        'submenu': appendSubMenu
 	      });
+	    } else {
+	      //console.log('  no push item Append')
 	    }
 
-	    if(items.length > 0) {
+	    if (!menuActions || (menuActions.indexOf('Item') >= 0 && menuActions[menuActions.length - 1] != '')) {
+	      //console.log('  push item Insert')
+	      items.push({
+	        'text': translate('insert'),
+	        'title': translate('insertTitle'),
+	        'submenuTitle': translate('insertSub'),
+	        'className': 'jsoneditor-insert',
+	        'click': function () {
+	            node._onInsert('', '', 'auto');
+	        },
+	        'submenu': appendSubMenu
+	      });
+	    } else {
+	      //console.log('  no push item Insert')
+	    }
+
+	    if(items.length > 0 || !menuActions) {
+	      //console.log('  show')
 	      var menu = new ContextMenu(items, {close: onClose});
 	      menu.show(anchor, this.editor.content);
+	    } else {
+	      //console.log('  no show')
 	    }
 	  };
 
@@ -13359,6 +13658,63 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 
 	  return AppendNode;
+	}
+
+	function trace(msg) { // AME
+	  //console.log(msg)
+	  //return
+	  var orig = Error.prepareStackTrace;
+	  Error.prepareStackTrace = function(_, stack) {
+	      return stack;
+	  };
+	  var err = new Error();
+	  Error.captureStackTrace(err, arguments.callee);
+	  var stack = err.stack;
+	  Error.prepareStackTrace = orig;
+	 
+	  for (var i = 0; i < stack.length; i++) {
+	    var fil = stack[i].getFileName();
+	    var fct = stack[i].getFunctionName();
+	    var lin = stack[i].getLineNumber();
+
+	    var trc = 'file ' + fil + ' function ' + fct + ' line ' + lin + ': ' + msg;
+
+	    console.log(trc);
+	  }
+	}
+
+	function contextMenu (menus, parentField, field)  {
+	  var foundKey = false;
+
+	  if (menus[parentField + '.' + field]) {
+	    //console.log('  contextMenu found string field ' + parentField + '.' + field);
+	    foundKey = parentField + '.' + field;
+	  } else {
+	    Object.keys(menus).some(function(key) {
+	      //console.log('  contextMenu regex field ' + parentField + '.' + field + ' key ' + key );
+	      if (key.indexOf(parentField + './') == 0 && key.slice(-1) == '/') {
+	        //console.log('  contextMenu found regex field ' + parentField + '.' + field + ' key ' + key );
+	        var regex = new RegExp(key.substring(key.indexOf('/') + 1, key.lastIndexOf('/') - 1));
+	        if (regex.test(field)) {
+	          //console.log('  contextMenu test regex field ' + parentField + '.' + field + ' key ' + key );
+	          foundKey = key;
+	          return true;
+	        } else {
+	          return false;
+	        }
+	      }
+	    }) 
+	  }
+	  
+	  if (foundKey) {
+	    //console.log('  contextMenu return regex field ' + parentField + '.' + field + ' key ' + foundKey + ' ctx ' +  menus[foundKey].slice(0) );  
+	    return {
+	      item: foundKey,
+	      actions: menus[foundKey].slice(0)
+	    };
+	  } else {
+	    return false;
+	  }
 	}
 
 	module.exports = appendNodeFactory;

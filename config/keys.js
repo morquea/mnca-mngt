@@ -4,7 +4,7 @@ let toBoolean = (env, defaultValue) => {
 
 const keys = {
 
-    version: '1.1.7',
+    version: '1.2.0',
 
     oauth2: {
         clientID: (process.env.OAUTH2_CLIENT_ID || '43df87e8-f273-4544-9e6d-5d40fa252427'),
@@ -40,6 +40,14 @@ const keys = {
         },
         services: {
             uri: (process.env.IOT_AGENT_SERVICES || 'http://192.168.56.104:4041/iot/services')
+        }
+    },
+    orion: {
+        subscriptions: {
+            uri: (process.env.ORION_SUBSCRIPTIONS || 'http://idm.mnca.com:1026/v2/subscriptions'),
+        },
+        metrics: {
+            uri: (process.env.ORION_METRICS || 'http://idm.mnca.com:1026/admin/metrics'),
         }
     }
 }

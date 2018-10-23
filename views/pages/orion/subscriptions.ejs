@@ -1,8 +1,8 @@
 <% include ../header %>
-<form class="ui form" action="/api/iot/devices" method="post">
+<form class="ui form" action="/api/orion/subscriptions" method="post">
     <input type="hidden" id="page" name="page" value="1">
     <div class="ui comments">
-        <h4 class="ui header">Selection des Devices IOT</h3>
+        <h4 class="ui header">Selection des Subscriptions ORION</h3>
     </div>
     <div class="contents">
         <div class="ui four column grid">
@@ -13,9 +13,13 @@
                         <div class="default text">Service</div>
                         <i class="dropdown icon" data-content="FIWARE Service"></i>
                         <div class="menu">
-                            <div class="item" data-value="">Choose FIWARE Service</div>
+                            <!-- <div class="item" data-value="">Choose FIWARE Service</div> -->
                             <% fw_services.forEach(function (fw_srv) { %>
-                                <div class="item" data-value="<%= fw_srv %>"><%= fw_srv %></div>
+                                <% if (fw_srv == '#') { %>
+                                    <div class="item" data-value="#">Default FIWARE Service</div>
+                                <% } else { %>
+                                    <div class="item" data-value="<%= fw_srv %>"><%= fw_srv %></div>
+                                <% } %>
                             <% }) %>
                         </div>                        
                     </div>
@@ -23,23 +27,27 @@
                 <div class="column">
                     <div class="ui selection dropdown fw_servicepath">
                         <input id="inpSubService" type="hidden" name="fw_servicepath" value="<%= fw_servicepath %>">
-                        <div class="text">Choose FIWARE ServicePath</div>
-                        <i class="dropdown icon"></i>
+                        <div class="text">ServicePath</div>
+                        <i class="dropdown icon" data-content="FIWARE ServicePath"></i>
                         <div class="menu">
-                            <div class="item" data-value="">Choose FIWARE ServicePath</div>
+                            <!-- <div class="item" data-value="">Choose FIWARE ServicePath</div> -->
                             <% fw_servicepaths.forEach(function (fw_srp) { %>
-                                <div class="item" data-value="<%= fw_srp %>"><%= fw_srp %></div>
+                                <% if (fw_srp == '/#') { %>
+                                    <div class="item" data-value="/#">Any FIWARE ServicePath</div>
+                                <% } else { %>
+                                    <div class="item" data-value="<%= fw_srp %>"><%= fw_srp %></div>
+                                <% } %>
                             <% }) %>
                         </div>               
                     </div>
                 </div>
                 <div class="column">
-                    <button type="submit" name="action" value='{"todo": "devices"}' class="ui left floated small primary labeled submit icon button">
+                    <button type="submit" name="action" value='{"todo": "subscriptions"}' class="ui left floated small primary labeled submit icon button">
                         <i class="filter icon"></i> Appliquer la Sélection
                     </button>
                 </div>
                 <div class="column">
-                    <button id="btnNoSel" type="submit" name="action" value='{"todo": "devices"}' class="ui left floated small primary labeled submit icon button">
+                    <button id="btnNoSel" type="submit" name="action" value='{"todo": "subscriptions"}' class="ui left floated small primary labeled submit icon button">
                         <i class="list icon"></i> Annuler la Sélection
                     </button>
                 </div>
@@ -50,18 +58,17 @@
     </div>
     <% if (pager) { %>
     <div class="ui comments iotlist">
-        <h4 class="ui header">Liste des Devices IOT <% if (pager.nb_pages > 1) { %><i><%= '(page ' + pager.current_page + ' of ' + pager.nb_pages + ')' %></i><% } %></h4>
+        <h4 class="ui header">Liste des Subscriptions ORION <% if (pager.nb_pages > 1) { %><i><%= '(page ' + pager.current_page + ' of ' + pager.nb_pages + ')' %></i><% } %></h4>
     </div>
     <div class="contents iotlist">
             
             <table class="ui fixed celled table">
                 <thead>
-                    <tr class="seven">
-                        <th><%= list[0].label %></th>
-                        <th><%= list[1].label %></th>
-                        <th><%= list[2].label %></th>
-                        <th><%= list[3].label %></th>
-                        <th colspan="3">
+                    <tr class="fourteen">
+                        <th colspan="3"><%= list[0].label %></th>
+                        <th colspan="2"><%= list[1].label %></th>
+                        <th colspan="3"><%= list[2].label %></th>
+                        <th colspan="6">
                             <div class="ui right floated mini pagination menu">
                                 <% if (pager.current_page == 1) { %> 
                                 <a class="item active" data-value="1">1</a>
@@ -102,27 +109,29 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <% devices.forEach(function(device)  { %>
+                    <% subscriptions.forEach(function(subscription)  { %>
                         <tr>
-                            <td>
-                                <%= device[list[0].name] %>
+                            <td colspan="3">
+                                <%= subscription[list[0].name] ? subscription[list[0].name] : ''  %>
                             </td>
-                            <td>
-                                <%= device[list[1].name] %>
+                            <td colspan="2">
+                                <%= subscription[list[1].name] ? subscription[list[1].name].substring(0, 16) : '' %>
                             </td>
-                            <td>
-                                <%= device[list[2].name] %>
+                            <td colspan="3">
+                                <%= subscription[list[2].name] %>
                             </td>
-                            <td>
-                                <%= device[list[3].name] %>
-                            </td>
-                            <td>
-                                <button type="submit" name="action" value='{"todo": "update", "device_id": "<%= device.device_id %>"}' class="ui left floated small primary labeled submit icon button">
+                            <td colspan="2">
+                                <button type="submit" name="action" value='{"todo": "update", "id": "<%= subscription.id %>"}' class="ui left floated small primary labeled submit icon button">
                                     <i class="edit icon"></i> Modifier
                                 </button>
                             </td>
-                            <td>
-                                <button type="submit" name="action" value='{"todo": "delete", "device_id": "<%= device.device_id %>"}' class="ui left floated small primary labeled submit icon button">
+                            <td colspan="2">
+                                <button type="submit" name="action" value='{"todo": "clone", "id": "<%= subscription.id %>"}' class="ui left floated small primary labeled submit icon button">
+                                    <i class="clone icon"></i> Dupliquer
+                                </button>
+                            </td>
+                            <td colspan="2">
+                                <button type="submit" name="action" value='{"todo": "delete", "id": "<%= subscription.id %>"}' class="ui left floated small primary labeled submit icon button">
                                     <i class="trash icon"></i> Supprimer
                                 </button>
                             </td>
