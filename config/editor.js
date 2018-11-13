@@ -22,6 +22,16 @@ let editor = {
                 }
             },
             {
+                text: 'LazyItem',
+                title: 'Insert a lazy Node',
+                className: 'jsoneditor-type-object',
+                field: 'lazyItem',
+                value: {
+                    'name': 'apocalypse',
+                    'type': 'now'            
+                }
+            },
+            {
                 text: 'StaticAttr',
                 title: 'Insert a static_attribute Node',
                 className: 'jsoneditor-type-object',
@@ -38,7 +48,35 @@ let editor = {
                 className: 'jsoneditor-type-string',
                 field: 'endpoint',
                 value: 'foo'
-            }
+            },
+            {
+                text: 'Name',
+                title: 'Insert a name Node',
+                className: 'jsoneditor-type-string',
+                field: 'name',
+                value: 'foo'
+            },
+            {
+                text: 'Type',
+                title: 'Insert a type Node',
+                className: 'jsoneditor-type-string',
+                field: 'type',
+                value: 'foo'
+            },
+            {
+                text: 'ObjectId',
+                title: 'Insert a object_id Node',
+                className: 'jsoneditor-type-string',
+                field: 'object_id',
+                value: 'foo'
+            },
+            {
+                text: 'Expression',
+                title: 'Insert a expression Node',
+                className: 'jsoneditor-type-string',
+                field: 'expression',
+                value: '${@foo}'
+            },
 
         ],
         'iot/services': [
@@ -285,15 +323,15 @@ let editor = {
                 text: 'Q',
                 title: 'Insert an Q Node',
                 className: 'jsoneditor-type-string',
-                field: '',
-                value: ''
+                field: 'q',
+                value: 'foo==20'
             },
             {
                 text: 'Mq',
                 title: 'Insert an Mq Node',
                 className: 'jsoneditor-type-string',
                 field: 'mq',
-                value: 'foo.bar>=123'
+                value: 'foo.bar>=123;foo.baz==123,456'
             },
             {
                 text: 'Georel',
@@ -377,20 +415,26 @@ let editor = {
     context: {
         'iot/devices': {
             items: {
-                'device.device_id': ['Insert', 'Append', '', 'Attributes', 'Static_Attributes', 'Commands', 'Endpoint'],
-                'device.service': ['Insert', 'Append', '', 'Attributes', 'Static_Attributes', 'Commands', 'Endpoint'],
-                'device.service_path': ['Insert', 'Append', '', 'Attributes', 'Static_Attributes', 'Commands', 'Endpoint'],
-                'device.entity_name': ['Insert', 'Append', '', 'Attributes', 'Static_Attributes', 'Commands', 'Endpoint'],
-                'device.entity_type': ['Insert', 'Append', '', 'Attributes', 'Static_Attributes', 'Commands', 'Endpoint'],
-                'device.transport': ['Insert', 'Append', '', 'Attributes', 'Static_Attributes', 'Commands', 'Endpoint'],
-                'device.protocol': ['Insert', 'Append', '', 'Attributes', 'Static_Attributes', 'Commands', 'Endpoint'],
-                'device.attributes': ['Insert', 'Append', 'Remove', '', 'Static_Attributes', 'Commands', 'Endpoint'],
-                'device.commands': ['Insert', 'Append', 'Remove', '', 'Attributes', 'Static_Attributes', 'Endpoint'],
-                'device.static_attributes': ['Insert', 'Append', 'Remove', '', 'Attributes', 'Commands', 'Endpoint'],
-                'device.endpoint': ['Insert', 'Append', '', 'Attributes', 'Static_Attributes', 'Commands'],
+                'device.device_id': ['Insert', 'Append', '', 'Attributes', 'Lazy', 'Static_Attributes', 'Commands', 'Endpoint'],
+                'device.service': ['Insert', 'Append', '', 'Attributes', 'Lazy', 'Static_Attributes', 'Commands', 'Endpoint'],
+                'device.service_path': ['Insert', 'Append', '', 'Attributes', 'Lazy', 'Static_Attributes', 'Commands', 'Endpoint'],
+                'device.entity_name': ['Insert', 'Append', '', 'Attributes', 'Lazy', 'Static_Attributes', 'Commands', 'Endpoint'],
+                'device.entity_type': ['Insert', 'Append', '', 'Attributes', 'Lazy', 'Static_Attributes', 'Commands', 'Endpoint'],
+                'device.transport': ['Insert', 'Append', '', 'Attributes', 'Lazy', 'Static_Attributes', 'Commands', 'Endpoint'],
+                'device.protocol': ['Insert', 'Append', '', 'Attributes', 'Lazy', 'Static_Attributes', 'Commands', 'Endpoint'],
+                'device.attributes': ['Insert', 'Append', 'Remove', '', 'Lazy', 'Static_Attributes', 'Commands', 'Endpoint'],
+                'device.lazy': ['Insert', 'Append', 'Remove', '', 'Attributes', 'Static_Attributes', 'Commands', 'Endpoint'],
+                'device.commands': ['Insert', 'Append', 'Remove', '', 'Attributes', 'Lazy', 'Static_Attributes', 'Endpoint'],
+                'device.static_attributes': ['Insert', 'Append', 'Remove', '', 'Attributes', 'Lazy', 'Commands', 'Endpoint'],
+                'device.endpoint': ['Insert', 'Append', '', 'Attributes', 'Lazy', 'Static_Attributes', 'Commands'],
                 'attributes.attributeItem': ['Insert', 'Append', 'Remove', 'Attribute'],
+                'lazy.lazyItem': ['Insert', 'Append', 'Remove', 'LazyItem'],
                 'commands.commandItem': ['Insert', 'Append', 'Remove', 'Command'],
-                'static_attributes.staticAttrItem': ['Insert', 'Append', 'Remove', 'StaticAttr']
+                'static_attributes.staticAttrItem': ['Insert', 'Append', 'Remove', 'StaticAttr'],
+                'attributeItem.name': ['Insert', 'Append', '',  'Type', 'ObjectId', 'Expression'],
+                'attributeItem.type': ['Insert', 'Append', '',  'Name', 'ObjectId', 'Expression'],
+                'attributeItem.object_id': ['Insert', 'Append', 'Remove', '',  'Name', 'Type', 'Expression'],
+                'attributeItem.expression': ['Insert', 'Append', 'Remove', '',  'Name', 'Type', 'ObjectId'],
             }
         },
         'iot/services': {

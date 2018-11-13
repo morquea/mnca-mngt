@@ -1,0 +1,45 @@
+<% include ../../header %>
+
+    <div class="ui comments">
+        <h3 class="ui dividing header">Création de Subscription ORION</h3>
+    </div>
+
+    <div class="contents">
+
+        <div id="jsoneditor" style="width: 520px; height: 400px;"></div>
+        <div class="ui two column grid" style="width: 520px; margin-top: 5px;">
+            <div class="left floated column">
+                <div class="fields">    
+                    <button id="btnEdit" class="ui left floated small primary labeled icon button disabled">
+                        <i class="edit icon"></i> Editer
+                    </button>
+
+                    <button id="btnSave" class="ui left floated small primary labeled  icon button">
+                        <i class="shield alternate icon"></i> Valider
+                    </button>
+                </div>
+            </div>
+            <div class="right floated column">
+                <form class="ui form" action="/api/orion/subscriptions/create" method="post">
+                    <div class="fields">  
+                        <button id="btnUndo" class="ui left floated small primary labeled  icon button">
+                            <i class="undo icon"></i> Annuler
+                        </button>
+                        <button id="btnSend" class="ui left floated small primary labeled  icon button disabled">
+                            <i class="save icon"></i> Enregistrer
+                        </button>
+                    </div>
+                    <input type="hidden" name="json" id="json" value='<%= json %>'>
+                    <input type="hidden" name="doit" id="doit" value='doit'>
+                    <input type="hidden" disabled name="jsonschema" id="jsonschema" value='<%= jsonschema %>'>
+                    <input type="hidden" disabled name="readonly" id="readonly" value='<%= readonly %>'>
+                    <input type="hidden" disabled name="readwrite" id="readwrite" value='<%= readwrite %>'>
+                    <input type="hidden" disabled name="templates" id="templates" value='<%= templates %>'>
+                    <input type="hidden" disabled name="context" id="context" value='<%= context %>'>
+                    <input type="hidden" disabled name="item_name" id="itemName" value='<%= itemName %>'>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<% include ../../footer %>

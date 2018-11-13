@@ -28,14 +28,9 @@ let schemas = {
                 "items": {
                     "title": "attribute",
                     "type": "object",
-                    "minProperties": 3,
-                    "maxProperties": 3,
+                    "minProperties": 2,
+                    "maxProperties": 4,
                     "properties": {
-                        "object_id": {
-                            "type": "string",
-                            "isNotEmpty": true,
-                            //    "default": "foo"
-                        },
                         "name": {
                             "type": "string",
                             "isNotEmpty": true,
@@ -45,20 +40,28 @@ let schemas = {
                             "type": "string",
                             "isNotEmpty": true,
                             //    "default": "baz"
-                        }
+                        },
+                        "object_id": {
+                            "type": "string",
+                            "isNotEmpty": true,
+                            //    "default": "foo"
+                        },
+                        "expression": {
+                            "type": "string",
+                            "isNotEmpty": true,
+                        },
                     },
-                    "required": ["object_id", "name", "type"],
+                    "required": ["name", "type"],
                     "additionalProperties": false
 
                 }
             },
             "lazy": {
                 "type": "array",
-                "maxItems": 0,
                 "uniqueItems": true,
                 "items": {
                     "type": "object",
-                    "minProperties": 3,
+                    "minProperties": 2,
                     "maxProperties": 3,
                     "properties": {
                         "name": {
@@ -71,13 +74,12 @@ let schemas = {
                             "isNotEmpty": true,
 
                         },
-                        "value": {
+                        "object_id": {
                             "type": "string",
                             "isNotEmpty": true,
-
                         }
                     },
-                    "required": ["name", "type", "value"],
+                    "required": ["name", "type"],
                     "additionalProperties": false
                 }
             },
@@ -87,7 +89,7 @@ let schemas = {
                 "items": {
                     "type": "object",
                     "minProperties": 2,
-                    "maxProperties": 2,
+                    "maxProperties": 3,
                     "properties": {
                         "name": {
                             "type": "string",
@@ -98,6 +100,10 @@ let schemas = {
                             'type': "string",
                             "isNotEmpty": true,
                             "enum": ["command"]
+                        },
+                        "object_id": {
+                            "type": "string",
+                            "isNotEmpty": true,
                         }
                     },
                     "required": ["name", "type"],

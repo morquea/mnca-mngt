@@ -433,7 +433,7 @@ router.post('/create',
             'json': true
         }
 
-        console.log('opts to send ' + JSON.stringify(opts, null, 2))
+        //console.log('opts to send ' + JSON.stringify(opts, null, 2))
 
         rest(opts)
             .then(function(body) {
@@ -705,7 +705,7 @@ router.post('/delete',
 
         let jsonSource = request.session.json
 
-        console.log('jsonSource ' + JSON.stringify(jsonSource, null, 2))
+        //console.log('jsonSource ' + JSON.stringify(jsonSource, null, 2))
 
         let uri = options[path].uri
 

@@ -21,7 +21,7 @@ let attributs = {
             'update': ['device_id', 'service', 'service_path', 'entity_name', 'entity_type', 'protocol', 'transport']
         },
         'readwrite': {
-            'update': ['attributes', 'commands', 'static_attributes', 'endpoint']
+            'update': ['attributes', 'commands', 'lazy', 'static_attributes', 'endpoint']
         },
         'list': [{ name: 'service', label: 'Service' }, { name: 'service_path', label: 'Service Path' }, { name: 'device_id', label: 'Device ID' }, { name: 'entity_name', label: 'Entity name' }],
         'key': 'device_id'

@@ -325,7 +325,11 @@ router.post('/',
 
         trace(debug, action.todo + ' id ' + action.id)
 
-        let uri = options[path].uri + '/' + action.id
+        let uri = options[path].uri 
+
+        if (action.todo != 'create') {
+            uri = uri  + '/' + action.id
+        }
 
         let opts = {
             'uri': uri,
@@ -351,15 +355,35 @@ router.post('/',
 
                 let elements = [resp]
 
-                // on récupère l'élément avec la bonne clé
-                let element = elements.find((el) => el[attrs.key] == action[attrs.key])
+                let element = {
+                    "id": "",
+                    "notification": {
+                        "http": {
+                            "url": "http://somehost:1234"
+                        }
+                    },
+                    "subject": {
+                        "entities": [
+                            {
+                                "idPattern": ".*",
+                                "type": "thing"
+                            }
+                        ]
+                    }
+                }
+                
+                if (action.todo != 'create') {
+                    // on récupère l'élément avec la bonne clé
+                    element = elements.find((el) => el[attrs.key] == action[attrs.key])
+                }
 
                 // on ne récupère que les attributs readonly en clone
-                if (action.todo == 'clone') {
+                if (action.todo == 'create' || action.todo == 'clone') {
                     element.id = ''
-                    delete element.status
+                    //delete element.status
+                    element.status = ''
 
-                    let readonly = attributs[path].readonly.clone
+                    let readonly = attributs[path].readonly[action.todo]
                     
                     readonly.forEach(attr => {
                         if (attr != 'id') {
@@ -426,7 +450,7 @@ router.post('/create',
 
             request.flash('success', 'Création du JSON en cours annulée')
 
-            trace(debug, 'client hit' + request.body.doit + ' on page ' + request.originalUrl)
+            trace(debug, 'client hit ' + request.body.doit + ' on page ' + request.originalUrl)
 
             trace(debug, 'redirect back')
 
@@ -450,69 +474,58 @@ router.post('/create',
 
         //console.log('jsonCible ' + request.body.json)
 
-        let servicekeys = JSON.parse(request.body.json_servicekeys)
+        let servicekey = {}
 
-        let servicekeyobj = {}
+        servicekey['service'] = request.session.fw_service
+        servicekey['subservice'] = request.session.fw_servicepath
 
+        let uri = options[path].uri 
 
-        for (let el of ['service', 'subservice', 'apikey', 'resource']) {
-            servicekeyobj[el] = jsonCible[el]
-        }
+        trace(debug, 'preparing post backend ' + uri + ' servicekey ' + servicekey)
 
-        let servicekey = jsonCible.service + '|' + jsonCible.subservice + '|' + jsonCible.apikey + '|' + jsonCible.resource
+        let readonly = attributs[path].readonly.update
+        readonly.push('id')
 
-        let uri = options[path].uri
+        readonly.forEach(attr => {
+            let paths = jp.paths(jsonCible, '$.' + attr)
 
-        trace(debug, 'preparing post backend ' + uri + ' servicekey object %o', servicekeyobj)
+            paths.forEach(path => {
+                let elt = jsonCible
+                let att = path.pop()
 
-        if (servicekeys.includes(servicekey)) {
-
-            trace(debug, 'ERR: servicekey already exists')
-            request.flash('error', 'Erreur JSON: les éléments clés ' + servicekey + ' existent déjà')
-            next()
-
-        }
-
-        let service = jsonCible.service
-
-        let subservice = jsonCible.subservice
-
-        for (let el of ['service', 'subservice']) {
-
-            delete jsonCible[el]
-        }
+                for (let i = 1; i < path.length; i++) {
+                    elt = elt[path[i]]
+                }
+                delete elt[att] 
+            })
+        })
 
         let opts = {
             'method': 'POST',
             'uri': uri,
-            'body': {
-                'services': [
-                    jsonCible
-                ]
-            },
+            'body': jsonCible,
             'headers': {
                 'Content-Type': 'application/json',
-                'Fiware-Service': service,
-                'Fiware-ServicePath': subservice
+                'Fiware-Service': request.session.fw_service,
+                'Fiware-ServicePath': request.session.fw_servicepath
             },
             'json': true
         }
 
-        console.log('opts to send ' + JSON.stringify(opts, null, 2))
+        //console.log('opts to send ' + JSON.stringify(opts, null, 2))   
 
         rest(opts)
             .then(function(body) {
-                //trace(debug, 'post backend OK ' + body)
+                //trace(debug, 'post ' + path + ' OK ' + body)
                 request.flash('success', 'Création du JSON prise en compte')
                 next()
             })
             .catch(function(err) {
                 //console.log(JSON.stringify(err))
                 trace(debug, err)
-                request.flash('error', 'Echec à la création du JSON, status: ' + err.statusCode + ', cause ' + err.error.name + ', message: ' + err.error.message)
+                request.flash('error', 'Echec à la création du JSON, status: ' + err.statusCode + ', cause ' + err.error.error + ', message: ' + err.error.description)
                 next()
             })
-
     },
 
     (request, response) => {
@@ -662,7 +675,7 @@ router.post('/update',
                     'json': true               
                 }
 
-                console.log('opts to send ' + JSON.stringify(opts, null, 2))
+                //console.log('opts to send ' + JSON.stringify(opts, null, 2))
 
                 rest(opts)
                     .then(function(body) {
@@ -727,7 +740,7 @@ router.post('/clone',
         servicekey['service'] = request.session.fw_service
         servicekey['subservice'] = request.session.fw_servicepath
 
-        let uri = options[path].uri + '/' + jsonCible['id']
+        let uri = options[path].uri
 
         trace(debug, 'preparing post backend ' + uri + ' servicekey ' + servicekey)
 
@@ -814,7 +827,7 @@ router.post('/delete',
 
         let jsonSource = request.session.json
 
-        console.log('jsonSource ' + JSON.stringify(jsonSource, null, 2))
+        //console.log('jsonSource ' + JSON.stringify(jsonSource, null, 2))
 
         let uri = options[path].uri + '/' + jsonSource['id']
 
