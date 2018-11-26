@@ -2,11 +2,11 @@
 const ITEMS_PER_PAGE = 10
 const PAGER_MODULO = 4
 
-let trace = require('../config/trace')
+const trace = require('../config/trace')
 
-let debug = 'mnca:pager'
+const debug = 'mnca:pager'
 
-let Pager = {
+const Pager = {
 
     pager: {},
 

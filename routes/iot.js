@@ -1,82 +1,49 @@
-let express = require('express')
+const express = require('express')
 
-let trace = require('../config/trace')
+const trace = require('../config/trace')
 
-let options = require('../config/options')
+const options = require('../config/options')
 
-let router = express.Router()
+const router = express.Router()
 
-let debug = 'mnca:iot'
+const debug = 'mnca:iot'
+
+const expired = require('../middlewares/expired')
+
+router.use(expired)
 
 router.get('/:level',
 
     (request, response, next) => {
-
+        
         let level = request.params.level
 
         let path = 'iot/' + level
 
-        trace(debug, path + ' request session %o', request.session)
+        request.session.path = path
 
-        let userinfo = request.session.userinfo
+        trace(debug, 'iot path %s, options %o', path, options[path])
 
-        let roles = []
+        let fw_service = options[path].headers['Fiware-Service']
 
-        if (userinfo) {
+        if (level == 'services') {
 
-            roles = userinfo.roles
+            fw_service = '*'
         }
 
-        let auth = false
+        let fw_servicepath = options[path].headers['Fiware-ServicePath']
 
-        roles.forEach((role) => {
+        request.session.fw_service = fw_service
 
-            if (path == role.name) {
+        request.session.fw_servicepath = fw_servicepath
 
-                auth = true
+        trace(debug, 'auth ok for path : %s, service: %s, subservice: %s', path, fw_service, fw_servicepath)
+        
+        request.session.fw_servicekeys = ''
 
-            }
+        request.session.save()
 
-        })
-
-        if (auth) {
-
-            //request.register(path, auth)
-
-            request.session.path = path
-
-            trace(debug, 'iot path %s, options %o', path, options[path])
-
-            let fw_service = options[path].headers['Fiware-Service']
-
-            if (level == 'services') {
-
-                fw_service = '*'
-            }
-
-            let fw_servicepath = options[path].headers['Fiware-ServicePath']
-
-            request.session.fw_service = fw_service
-
-            request.session.fw_servicepath = fw_servicepath
-
-            trace(debug, 'auth ok for path : %s, service: %s, subservice: %s', path, fw_service, fw_servicepath)
-            
-            request.session.fw_servicekeys = ''
-
-            request.session.save()
-
-            response.redirect('/api/' + path)
-
-        } else {
-
-            request.flash('error', "Vous n'avez l'autorisation d'accès au path " + path)
-
-            trace(debug, 'ERR: auth ko for path : %s', path)
-
-            response.redirect('/')
-
-        }
+        response.redirect('/api/' + path)
 
     }
 

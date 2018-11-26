@@ -1,6 +1,6 @@
-let moment = require('moment');
+const moment = require('moment');
 
-moment.locale('fr', {
+/* moment.locale('fr', {
     months : 'janvier_février_mars_avril_mai_juin_juillet_août_septembre_octobre_novembre_décembre'.split('_'),
     monthsShort : 'janv._févr._mars_avr._mai_juin_juil._août_sept._oct._nov._déc.'.split('_'),
     monthsParseExact : true,
@@ -47,11 +47,7 @@ moment.locale('fr', {
     isPM : function (input) {
         return input.charAt(0) === 'M';
     },
-    // In case the meridiem units are not separated around 12, then implement
-    // this function (look at locale/id.js for an example).
-    // meridiemHour : function (hour, meridiem) {
-    //     return /* 0-23 hour, given meridiem token and hour 1-12 */ ;
-    // },
+    
     meridiem : function (hours, minutes, isLower) {
         return hours < 12 ? 'PD' : 'MD';
     },
@@ -59,7 +55,7 @@ moment.locale('fr', {
         dow : 1, // Monday is the first day of the week.
         doy : 4  // The week that contains Jan 4th is the first week of the year.
     }
-});
+}); */
 
 moment.locale('fr');
 

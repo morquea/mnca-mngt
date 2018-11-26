@@ -1,4 +1,4 @@
-let toBoolean = (env, defaultValue) => {
+const toBoolean = (env, defaultValue) => {
     return (env !== undefined) ? (env.toLowerCase() === 'true') : defaultValue
 }
 

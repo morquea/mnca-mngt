@@ -25,27 +25,27 @@ Object.defineProperty(global, '__function', {
     }
 }) */
 
-let debug = require('debug')
+const debug = require('debug')
 
-let trace = function(dbg, msg) {
+const trace = function(dbg, msg) {
 
     if (dbg) {
 
-        let trc = debug(dbg)
+        const trc = debug(dbg)
         trc.enabled = true
 
-        let orig = Error.prepareStackTrace;
+        const orig = Error.prepareStackTrace;
         Error.prepareStackTrace = function(_, stack) {
             return stack[0]
         };
-        let err = new Error()
+        const err = new Error()
         Error.captureStackTrace(err, arguments.callee);
-        let stack = err.stack
+        const stack = err.stack
         Error.prepareStackTrace = orig
 
-        let fil = stack.getFileName()
-        let fct = stack.getFunctionName()
-        let lin = stack.getLineNumber()
+        const fil = stack.getFileName()
+        const fct = stack.getFunctionName()
+        const lin = stack.getLineNumber()
 
         let args = [...arguments].slice(1)
 

@@ -6,52 +6,54 @@ const keys = require('./keys')
 
 const trace = require('./trace')
 
-const rest = require('request-promise')
-
 const debug = 'mnca:passportsetup'
 
-passport.use(
+const passportSetup = () => {
 
-    new Strategy({
+    const strategy =  new Strategy({
 
-            clientID: keys.oauth2.clientID,
+        clientID: keys.oauth2.clientID,
 
-            clientSecret: keys.oauth2.clientSecret,
+        clientSecret: keys.oauth2.clientSecret,
 
-            callbackURL: keys.oauth2.callbackURL,
+        callbackURL: keys.oauth2.callbackURL,
 
-            authorizationURL: keys.oauth2.authorizationURL,
+        authorizationURL: keys.oauth2.authorizationURL,
 
-            tokenURL: keys.oauth2.tokenURL,
+        tokenURL: keys.oauth2.tokenURL,
 
-            state: true
+        state: true
 
-        },
+    },
 
-        // callback function
-        (accessToken, refreshToken, profile, done) => {
+    // callback function
+    (accessToken, refreshToken, profile, done) => {
 
-            trace(debug, 'login passwport done accesstoken %s refreshtoken %s profile %o ', accessToken, refreshToken, profile)
+        trace(debug, 'login passwport done accesstoken %s refreshtoken %s profile %o ', accessToken, refreshToken, profile)
 
-            done(null, { accessToken: accessToken, refreshToken: refreshToken })
-        }
-    )
-)
+        done(null, { accessToken: accessToken, refreshToken: refreshToken })
 
-passport.serializeUser((user, done) => {
+    })
 
-    //trace(debug, 'login passort serializeuser user %o', user)
+    passport.use(strategy)
 
-    done(null, user)
+    refresh.use(strategy)
 
-})
+    passport.serializeUser((user, done) => {
 
-passport.deserializeUser((obj, done) => {
+        //trace(debug, 'login passort serializeuser user %o', user)
 
-    //trace(debug, 'login passort deserializeuser user %o', obj)
+        done(null, user)
 
-    done(null, obj)
+    })
 
-})
+    passport.deserializeUser((obj, done) => {
 
-module.exports = passport
+        //trace(debug, 'login passort deserializeuser user %o', obj)
+
+        done(null, obj)
+
+    })
+}
+
+module.exports = passportSetup

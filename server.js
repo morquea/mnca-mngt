@@ -1,27 +1,28 @@
-let trace = require('./config/trace')
-let express = require("express")
-//let morgan = require('morgan')
-let fs = require('fs')
-let https = require('https')
-let http = require('http')
-let app = express()
-let bodyParser = require("body-parser")
-let session = require('express-session')
-//let cookieSession = require('cookie-session')
-//let moment = require('./config/moment')
-let MemoryStore = require('memorystore')(session)
-let passport = require('./config/passport-setup')
-let indexRouter = require('./routes/index')
-let iotRouter = require('./routes/iot')
-let orionRouter = require('./routes/orion')
-let authRouter = require('./routes/auth')
-let servicesRouter = require('./routes/services')
-let devicesRouter = require('./routes/devices')
-let subscriptionsRouter = require('./routes/subscriptions')
+const trace = require('./config/trace')
+const express = require("express")
+//const morgan = require('morgan')
+const fs = require('fs')
+const https = require('https')
+const http = require('http')
+const app = express()
+const bodyParser = require("body-parser")
+const session = require('express-session')
+//const cookieSession = require('cookie-session')
+//const moment = require('./config/moment')
+const MemoryStore = require('memorystore')(session)
+//const passport = require('./config/passport-setup')
+const passport = require('passport')
+const indexRouter = require('./routes/index')
+const iotRouter = require('./routes/iot')
+const orionRouter = require('./routes/orion')
+const authRouter = require('./routes/auth')
+const servicesRouter = require('./routes/services')
+const devicesRouter = require('./routes/devices')
+const subscriptionsRouter = require('./routes/subscriptions')
 
 const keys = require('./config/keys.js')
 
-let debug = 'mnca:server'
+const debug = 'mnca:server'
 
 trace(debug, 'idm-mnca version ' + keys.version)
 
@@ -70,6 +71,8 @@ app.use(passport.initialize())
 
 app.use(require('./middlewares/flash'))
 
+//app.use(require('./middlewares/expired'))
+
 // routes
 // mount the routers on the app
 app.use('/', indexRouter)
@@ -90,7 +93,7 @@ trace(debug, 'init app done')
 //https
 if (keys.https.enabled) {
        
-    let https_opts = {
+    const https_opts = {
         key: fs.readFileSync(keys.https.key_file),
         cert: fs.readFileSync(keys.https.cert_file),
         passphrase: keys.https.passphrase
@@ -103,7 +106,7 @@ if (keys.https.enabled) {
         })
     }
 
-    let serverSecure = https.createServer(https_opts, app)
+    const serverSecure = https.createServer(https_opts, app)
     serverSecure.on('error', onError)
     serverSecure.listen(keys.https.port, () => {
         trace(debug, 'Listening on port ' + serverSecure.address().port)
@@ -111,7 +114,7 @@ if (keys.https.enabled) {
 }
 
 // http
-let server = http.createServer(app)
+const server = http.createServer(app)
 server.on('error', onError)
 server.listen(keys.web.port, () => {
     trace(debug, 'Listening on port ' + server.address().port)    
@@ -122,9 +125,9 @@ function onError(error) {
       throw error
     }
   
-    var port = error.port
+    const port = error.port
   
-    var bind = typeof port === 'string'
+    const bind = typeof port === 'string'
       ? 'Pipe ' + port
       : 'Port ' + port
   
@@ -141,4 +144,4 @@ function onError(error) {
       default:
         throw error
     }
-  }
+}

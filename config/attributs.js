@@ -1,4 +1,4 @@
-let attributs = {
+const attributs = {
 
     'iot/services': {
         'readonly': {

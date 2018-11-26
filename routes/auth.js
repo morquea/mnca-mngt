@@ -1,6 +1,8 @@
 const router = require('express').Router()
 
-const passport = require('../config/passport-setup')
+const passport = require('passport')
+
+const passportSetup = require('../config/passport-setup')
 
 const rest = require('request-promise')
 
@@ -9,6 +11,8 @@ const trace = require('../config/trace')
 const keys = require('../config/keys.js')
 
 const debug = 'mnca:passport_auth'
+
+passportSetup()
 
 router.get('/logout', (request, response) => {
 
@@ -25,7 +29,7 @@ router.get('/login/redirect', passport.authenticate('oauth2', { failureRedirect:
 
     trace(debug, 'login authenticate redirect')
 
-    trace(debug, 'request query.code %s, query state %s', request.query.code, request.query.state)
+    trace(debug, 'request query.code %s, query state %s, user %o', request.query.code, request.query.state, request.user)
 
     let userinfo = request.user
 
@@ -46,10 +50,6 @@ router.get('/login/redirect', passport.authenticate('oauth2', { failureRedirect:
     }).then((resp) => {
 
         trace(debug, 'login passwport done profile %o ', resp)
-
-        resp.accessToken = userinfo.accessToken
-
-        resp.refreshToken = userinfo.refreshToken
 
         request.session.userinfo = resp
 

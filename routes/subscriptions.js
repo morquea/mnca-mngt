@@ -1,18 +1,21 @@
-let express = require('express')
-let Pager = require('../config/pager')
-let trace = require('../config/trace')
-let jp = require('jsonpath')
-let isEqual = require('lodash.isequal')
-let isEmpty = require('lodash.isempty')
-let rest = require('request-promise')
-let instantiator = require('json-schema-instantiator')
-let router = express.Router()
+const express = require('express')
+const Pager = require('../config/pager')
+const trace = require('../config/trace')
+const jp = require('jsonpath')
+const isEqual = require('lodash.isequal')
+const isEmpty = require('lodash.isempty')
+const rest = require('request-promise')
+const instantiator = require('json-schema-instantiator')
+const router = express.Router()
 
-let debug = 'mnca:subscription'
-let options = require('../config/options')
+const debug = 'mnca:subscription'
+const options = require('../config/options')
 const attributs = require('../config/attributs')
 const schemas = require('../config/schemas')
 const editor = require('../config/editor')
+const expired = require('../middlewares/expired')
+
+router.use(expired)
 
 router.get('/', (request, response) => {
 

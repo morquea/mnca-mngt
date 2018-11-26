@@ -1,12 +1,12 @@
-let express = require('express')
+const express = require('express')
 
-let trace = require('../config/trace')
+const trace = require('../config/trace')
 
-let router = express.Router()
+const router = express.Router()
 
-let keys = require('../config/keys')
+const keys = require('../config/keys')
 
-let debug = 'mnca:index'
+const debug = 'mnca:index'
 
 router.get('/', 
     (req, res, next) => {

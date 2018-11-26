@@ -1,19 +1,22 @@
-let express = require('express')
-let Pager = require('../config/pager')
-let trace = require('../config/trace')
+const express = require('express')
+const Pager = require('../config/pager')
+const trace = require('../config/trace')
 
-let rest = require('request-promise')
+const rest = require('request-promise')
 
-let router = express.Router()
+const router = express.Router()
 
-let debug = 'mnca:service'
-let options = require('../config/options')
+const debug = 'mnca:service'
+const options = require('../config/options')
 const attributs = require('../config/attributs')
 const schemas = require('../config/schemas')
 const editor = require('../config/editor')
 //const Ajv = require('ajv')
 //const AjvErrors = require('ajv-errors')
 //const jsf = require('json-schema-faker')
+const expired = require('../middlewares/expired')
+
+router.use(expired)
 
 router.get('/', (request, response, next) => {
 

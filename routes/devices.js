@@ -1,16 +1,19 @@
-let express = require('express')
-let Pager = require('../config/pager')
-let trace = require('../config/trace')
-let jp = require('jsonpath')
-let rest = require('request-promise')
+const express = require('express')
+const Pager = require('../config/pager')
+const trace = require('../config/trace')
+const jp = require('jsonpath')
+const rest = require('request-promise')
 
-let router = express.Router()
+const router = express.Router()
 
-let debug = 'mnca:device'
-let options = require('../config/options')
+const debug = 'mnca:device'
+const options = require('../config/options')
 const attributs = require('../config/attributs')
 const schemas = require('../config/schemas')
 const editor = require('../config/editor')
+const expired = require('../middlewares/expired')
+
+router.use(expired)
 
 router.get('/', (request, response) => {
 

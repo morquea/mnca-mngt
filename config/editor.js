@@ -1,4 +1,4 @@
-let editor = {
+const editor = {
     templates: {
         'iot/devices': [{
                 text: 'Attribute',

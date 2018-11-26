@@ -1,4 +1,4 @@
-let schemas = {
+const schemas = {
     "devices": {
         "type": "object",
         "properties": {
@@ -279,7 +279,7 @@ let schemas = {
                 "items": {
                     "type": "object",
                     "patternProperties": {
-                        "^[ -~]+$": {"type": "string"}
+                        "^[!$%(-.0-:@-~]+$": {"type": "string"}
                     }
                 }
             },
@@ -462,13 +462,13 @@ let schemas = {
                             "headers": {
                                 "type": "object",
                                 "patternProperties": {
-                                    "^[ -~]+$": {"type": "string"}
+                                    "^[!$%(-.0-:@-~]+$": {"type": "string"}
                                 }
                             },
                             "qs": {
                                 "type": "object",
-                                "patternProperties": {
-                                    "^[ -~]+$": {"type": "string"}
+                                "patternProperties": { // char range x32-x127 minus sp " # & ' / ; < = > ?
+                                    "^[!$%(-.0-:@-~]+$": {"type": "string"}
                                 }
                             },
                             "method": {
