@@ -37,8 +37,6 @@ const passportSetup = () => {
 
     passport.use(strategy)
 
-    refresh.use(strategy)
-
     passport.serializeUser((user, done) => {
 
         //trace(debug, 'login passort serializeuser user %o', user)
