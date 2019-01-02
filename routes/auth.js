@@ -14,18 +14,23 @@ const debug = 'mnca:passport_auth'
 
 passportSetup()
 
-router.get('/logout', (request, response) => {
+router.get('/logout', async (request, response, next) => {
 
-    request.session.destroy(function(e) {
+    try {
+        await request.session.destroy()
+
         request.logout()
         response.clearCookie('session', { path: '/' })
         response.redirect('/')
-    })
+
+    } catch(e) {
+        next(e)
+    }
 })
 
 router.get('/login', passport.authenticate('oauth2', { scope: ['profile'] }))
 
-router.get('/login/redirect', passport.authenticate('oauth2', { failureRedirect: '/login' }), (request, response) => {
+router.get('/login/redirect', passport.authenticate('oauth2', { failureRedirect: '/login' }), async (request, response, next) => {
 
     trace(debug, 'login authenticate redirect')
 
@@ -33,21 +38,17 @@ router.get('/login/redirect', passport.authenticate('oauth2', { failureRedirect:
 
     let userinfo = request.user
 
-    rest({
-
-        uri: keys.oauth2.userURL,
-
-        headers: {
-            'Content-Type': 'application/json'
-        },
-
-        json: true, // Automatically parses the JSON string in the response
-
-        'qs': {
-            'access_token': userinfo.accessToken
-        }
-
-    }).then((resp) => {
+    try {
+        let resp = await rest({
+            uri: keys.oauth2.userURL,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            json: true, // Automatically parses the JSON string in the response
+            'qs': {
+                'access_token': userinfo.accessToken
+            }
+        })
 
         trace(debug, 'login passwport done profile %o ', resp)
 
@@ -59,7 +60,18 @@ router.get('/login/redirect', passport.authenticate('oauth2', { failureRedirect:
 
         response.redirect('/')
 
-    })
+    } catch(e) {
+        try {
+            await request.session.destroy()
+
+            request.logout()
+            response.clearCookie('session', { path: '/' })
+            //response.redirect('/')
+        } catch(e) {
+            next(e)
+        }
+        next(e)
+    }
 
 })
 
