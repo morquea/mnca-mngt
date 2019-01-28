@@ -1,3 +1,7 @@
+/**
+ * Defintion for each tab of readonly / readwrite attributes for each action 
+ */
+
 const attributs = {
 
     'iot/services': {

@@ -30,49 +30,52 @@ router.get('/logout', async (request, response, next) => {
 
 router.get('/login', passport.authenticate('oauth2', { scope: ['profile'] }))
 
-router.get('/login/redirect', passport.authenticate('oauth2', { failureRedirect: '/login' }), async (request, response, next) => {
+router.get('/login/redirect', passport.authenticate('oauth2', { failureRedirect: '/login' }), 
 
-    trace(debug, 'login authenticate redirect')
+    async (request, response, next) => {
 
-    trace(debug, 'request query.code %s, query state %s, user %o', request.query.code, request.query.state, request.user)
+        trace(debug, 'login authenticate redirect')
 
-    let userinfo = request.user
+        trace(debug, 'request query.code %s, query state %s, user %o', request.query.code, request.query.state, request.user)
 
-    try {
-        let resp = await rest({
-            uri: keys.oauth2.userURL,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            json: true, // Automatically parses the JSON string in the response
-            'qs': {
-                'access_token': userinfo.accessToken
-            }
-        })
+        let userinfo = request.user
 
-        trace(debug, 'login passwport done profile %o ', resp)
-
-        request.session.userinfo = resp
-
-        trace(debug, 'userinfo %o', request.session.userinfo)
-
-        request.session.save()
-
-        response.redirect('/')
-
-    } catch(e) {
         try {
-            await request.session.destroy()
+            let resp = await rest({
+                uri: keys.oauth2.userURL,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                json: true, // Automatically parses the JSON string in the response
+                'qs': {
+                    'access_token': userinfo.accessToken
+                }
+            })
 
-            request.logout()
-            response.clearCookie('session', { path: '/' })
-            //response.redirect('/')
+            trace(debug, 'login passwport done profile %o ', resp)
+
+            request.session.userinfo = resp
+
+            trace(debug, 'userinfo %o', request.session.userinfo)
+
+            request.session.save()
+
+            response.redirect('/')
+
         } catch(e) {
+            try {
+                await request.session.destroy()
+
+                request.logout()
+                response.clearCookie('session', { path: '/' })
+                //response.redirect('/')
+            } catch(e) {
+                next(e)
+            }
             next(e)
         }
-        next(e)
-    }
 
-})
+    }
+)
 
 module.exports = router

@@ -1,11 +1,23 @@
+/**
+ * Convertit une cle "true"|"false" en booleen
+ * @param {*} env 
+ * @param {*} defaultValue 
+ */
+
 const toBoolean = (env, defaultValue) => {
     return (env !== undefined) ? (env.toLowerCase() === 'true') : defaultValue
 }
 
+/**
+ * clés d'environnement
+ */
+
 const keys = {
 
     version: '1.2.0',
-
+    debug: {
+        enabled: true
+    },
     oauth2: {
         clientID: (process.env.OAUTH2_CLIENT_ID || '43df87e8-f273-4544-9e6d-5d40fa252427'),
         clientSecret: (process.env.OAUTH2_CLIENT_SECRET || '24e3cb5d-9a25-4e41-b747-4dc7e17b6d55'),
@@ -36,10 +48,10 @@ const keys = {
     },
     iotAgent: {
         devices: {
-            uri: (process.env.IOT_AGENT_DEVICES || 'http://192.168.56.104:4041/iot/devices'),
+            uri: (process.env.IOT_AGENT_DEVICES || 'http://idm.mnca.com:4041/iot/devices'),
         },
         services: {
-            uri: (process.env.IOT_AGENT_SERVICES || 'http://192.168.56.104:4041/iot/services')
+            uri: (process.env.IOT_AGENT_SERVICES || 'http://idm.mnca.com:4041/iot/services')
         }
     },
     orion: {

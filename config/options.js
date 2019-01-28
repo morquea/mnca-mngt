@@ -1,3 +1,7 @@
+/**
+ *  backend request options for each tab
+ */
+
 const keys = require('./keys')
 
 const options = {

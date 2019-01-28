@@ -1,3 +1,7 @@
+/**
+ * list of schemas
+ */
+
 const schemas = {
     "devices": {
         "type": "object",

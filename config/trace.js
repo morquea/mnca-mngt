@@ -26,10 +26,11 @@ Object.defineProperty(global, '__function', {
 }) */
 
 const debug = require('debug')
+const keys = require('./keys')
 
 const trace = function(dbg, msg) {
 
-    if (dbg) {
+    if (keys.debug.enabled) {
 
         const trc = debug(dbg)
         trc.enabled = true

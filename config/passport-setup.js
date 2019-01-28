@@ -1,3 +1,7 @@
+/**
+ * passport setup for oauth2
+ */
+
 const passport = require('passport')
 
 const Strategy = require('passport-oauth2').Strategy

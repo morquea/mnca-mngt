@@ -271,6 +271,12 @@ const editor = {
                 ]
             },
             {
+                text: 'Data',
+                title: 'Insert a Data Node',
+                className: 'jsoneditor-type-string',
+                value: 'foo'
+            },
+            {
                 text: 'Description',
                 title: 'Insert an Description Node',
                 className: 'jsoneditor-type-string',
@@ -470,6 +476,11 @@ const editor = {
                 'subject.entities': ['Append', 'Insert', '', 'Condition'],
                 'subject.condition': ['Remove', ''],
                 'notification./^$/': ['Append', 'Insert', '', 'Http', 'HttpCustom'],
+                'notification.timesSent': ['Append', 'Insert', '', 'Attrs', 'ExceptAttrs','Http', 'HttpCustom', 'AttrsFormat', 'Metadata'],
+                'notification.lastNotification': ['Append', 'Insert', '', 'Attrs', 'ExceptAttrs','Http', 'HttpCustom', 'AttrsFormat', 'Metadata'],
+                'notification.lastSuccess': ['Append', 'Insert', '', 'Attrs', 'ExceptAttrs','Http', 'HttpCustom', 'AttrsFormat', 'Metadata'],
+                'notification.lastFailure': ['Append', 'Insert', '', 'Attrs', 'ExceptAttrs','Http', 'HttpCustom', 'AttrsFormat', 'Metadata'],
+                'notification.timesSent': ['Append', 'Inser', '', 'Attrs', 'ExceptAttrs','Http', 'HttpCustom', 'AttrsFormat', 'Metadata'],
                 'notification.attrs': ['Append', 'Insert', 'Remove', '', 'ExceptAttrs', 'Http', 'HttpCustom', 'AttrsFormat', 'Metadata'],
                 'notification.exceptAttrs': ['Append', 'Insert', 'Remove', '', 'Attrs', 'Http', 'HttpCustom', 'AttrsFormat', 'Metadata'],
                 'notification.http': ['Append', 'Insert', 'Remove', '', 'Attrs', 'ExceptAttrs', 'HttpCustom', 'AttrsFormat', 'Metadata'],
@@ -496,7 +507,8 @@ const editor = {
                 'expression.coords': ['Append', 'Insert', 'Remove', '', 'Q', 'Mq', 'Georel', 'Geometry'],
                 'entities.entityItem': ['Append', 'Insert', 'Remove', '', 'Entity'],
                 'attrs.attrItem': ['Append', 'Insert', 'Remove', '', 'Attr'],
-                'exceptAttrs.exceptAttrItem': ['Append', 'Insert', 'Remove', '', 'ExceptAttr'],
+                'exceptAttrs.attrItem': ['Append', 'Insert', 'Remove', '', 'Attr'],
+                'metadata.dataItem':['Append', 'Insert', 'Remove', '', 'Data'],
                 'qs./^$/': ['Append', 'Insert', 'Remove', '', 'Q'], // new item wihout any item
                 'qs./^[ -~]+$/': ['Append', 'Insert', 'Remove', '', 'Q'], // new item on existing item
                 'headers./^$/': ['Append', 'Insert', 'Remove', '', 'Header'], // new item wihout any item
@@ -525,7 +537,8 @@ const editor = {
         'orion/subscriptions': {
             children: {
                 entities: 'entityItem',
-                attrs: 'attrItem'         
+                attrs: 'attrItem',
+                metadata: 'dataItem'        
             }
         }
     }
